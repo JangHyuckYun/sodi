@@ -56,13 +56,13 @@ function App() {
       />
       <CssBaseline enableColorScheme={true} />
       <Router>
-        <nav style={{ position: 'fixed', zIndex: 9999 }}>
-          <NavLink to="/" end>
-            Home
-          </NavLink>
-          <NavLink to="/user/login">About</NavLink>
-          <NavLink to="/user/join">Contact</NavLink>
-        </nav>
+        {/*<nav style={{ position: 'fixed', zIndex: 9999 }}>*/}
+        {/*  <NavLink to="/" end>*/}
+        {/*    Home*/}
+        {/*  </NavLink>*/}
+        {/*  <NavLink to="/user/login">About</NavLink>*/}
+        {/*  <NavLink to="/user/join">Contact</NavLink>*/}
+        {/*</nav>*/}
         <AnimatedRoutes />
       </Router>
     </ThemeProvider>
