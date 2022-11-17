@@ -1,1 +1,2 @@
-# SODI ( Let's **s**hare **o**ur **d**aily l**i**ves  )
+# SODI
+> Full Name: Let's *S*hare **O**ur **D**aily l**I**ves
