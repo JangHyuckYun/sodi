@@ -10,6 +10,8 @@ import { uberMapApiKey } from '../utils/api';
 import { GeoJsonLayer, DeckGL } from 'deck.gl';
 // import 'maplibre-gl/dist/maplibre-gl.css';
 
+const publicKey = process.env.REACT_APP_PUBLIC_KEY;
+
 const transformRequest = (url, resourceType) => {
   if (resourceType === 'Tile' && url.match('localhost')) {
     return {
@@ -83,7 +85,7 @@ export const Main = () => {
       *
       * */
       (async () => {
-          let data = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/can.json?proximity=ip&types=place%2Cpostcode%2Caddress&access_token=${process.env.REACT_APP_PUBLIC_KEY}`).then(result => result.json());
+          let data = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/can.json?proximity=ip&types=place%2Cpostcode%2Caddress&access_token=${publicKey}`).then(result => result.json());
           console.log(data)
       })();
   }, []);
@@ -106,7 +108,7 @@ export const Main = () => {
           {/*    mapRef={mapRef}*/}
           {/*    onResult={handleOnResult}*/}
           {/*    onViewportChange={handleGeocoderViewportChange}*/}
-          {/*    mapboxApiAccessToken={publicKey}*/}
+          {/*    mapboxApiAccessToken={}*/}
           {/*    position={'top-left'}*/}
           {/*/>*/}
 
