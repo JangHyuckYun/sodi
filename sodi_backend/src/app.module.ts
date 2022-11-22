@@ -4,13 +4,10 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { UserModule } from './user/user.module';
-import { User } from './user/user.entity';
 import { StudyModule } from './study/study.module';
 import { BoardController } from './board/board.controller';
 import { BoardModule } from './board/board.module';
 import { CommentModule } from './comment/comment.module';
-import { Board } from './board/board.entity';
-import { Comment } from './comment/comment.entity';
 import { UserController } from './user/user.controller';
 import { AuthModule } from './auth/auth.module';
 import { AuthController } from './auth/auth.controller';
@@ -21,7 +18,7 @@ import { TypeOrmExModule } from './database/typeorm-ex.module';
 import { BoardRepository } from './board/board.repository';
 import { UserRepository } from './user/user.repository';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { config } from 'rxjs';
+import { HttpModule, HttpService } from '@nestjs/axios';
 
 @Module({
   imports: [

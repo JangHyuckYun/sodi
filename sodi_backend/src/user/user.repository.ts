@@ -29,4 +29,10 @@ export class UserRepository extends Repository<User> {
       where: { email: username },
     });
   }
+
+  async findById(id: number) {
+    return await this.findOne({
+      where: { id: id },
+    });
+  }
 }

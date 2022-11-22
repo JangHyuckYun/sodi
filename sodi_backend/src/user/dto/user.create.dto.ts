@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, Matches } from 'class-validator';
 import { errorMessages } from '../../utils/errorMessages';
+import { Role } from '../../roles/roles.enum';
 
 const messages = errorMessages.kr.createUser;
 
@@ -39,7 +40,7 @@ export class CreateUserDto {
   @ApiProperty({
     type: String,
     description: '유저 권한',
-    default: 'ROLE_ADMIN',
+    default: '["User"]',
   })
   role: string;
 

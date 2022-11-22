@@ -16,8 +16,10 @@ export class AuthService {
 
   async validateUser(username: string, password: string): Promise<any> {
     const user = await this.userService.findByEmail(username);
-    console.log(password, user.password);
-    if (await bcrypt.compare(password, user.password)) {
+
+    if (!user) return null;
+
+    if (await bcrypt.compare(password, user?.password)) {
       // user.password === password
       const { password, ...result } = user;
       return result;
@@ -39,5 +41,9 @@ export class AuthService {
     };
     console.log('async login() -> after', result);
     return result;
+  }
+
+  async verifyToken(token: string) {
+    return this.jwtService.verify(token);
   }
 }

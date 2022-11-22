@@ -13,6 +13,9 @@ import { CustomBothSidesContainer, CustomFlexContainer } from '../../utils/custo
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import framerSetting from "../../utils/framerSetting";
+import {useState} from "react";
+import {useNavigate} from "react-router";
+import {sodiApi} from "../../utils/api";
 const LoginBgContainer = styled(Container)`
   display: flex;
   align-items: center;
@@ -35,6 +38,22 @@ const BackBackground = styled.div`
 `;
 
 export const LoginContainer = () => {
+  let [loginId, setLoginId] = useState("");
+  let [password, setPassword] = useState("");
+
+  let navigate = useNavigate();
+
+  const loginProcess = async () => {
+    let { message, statusCode } = await sodiApi.user.login(loginId, password);
+
+    if ([200,201].includes(statusCode)) {
+      alert(message);
+
+      return navigate("/main");
+    }
+    return alert(message);
+  };
+
   return (
     <LoginBgContainer
       sx={{ width: '100vw', height: '100%' }}
@@ -52,7 +71,7 @@ export const LoginContainer = () => {
         </Box>
         <Box className={'box rightBox'}>
           <Typography variant={'h4'}>Sign in</Typography>
-          <Box component={'form'}>
+          <Box>
             <TextField
               margin="normal"
               required
@@ -62,6 +81,8 @@ export const LoginContainer = () => {
               name="email"
               autoComplete="email"
               autoFocus
+              value={loginId}
+              onChange={(e) => setLoginId(e.target.value)}
             />
             <TextField
               margin="normal"
@@ -72,12 +93,14 @@ export const LoginContainer = () => {
               type="password"
               id="password"
               autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
             />
-            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} onClick={() => loginProcess()}>
               Sign In
             </Button>
             <Grid container>

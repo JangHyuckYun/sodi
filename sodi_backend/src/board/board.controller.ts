@@ -19,6 +19,7 @@ export class BoardController {
 
   @Post('create')
   createBoard(@Body() createBoardDto: CreateBoardDto): void {
-    this.boardService.createBoard(createBoardDto);
+    console.log('createBoardDto', createBoardDto);
+    // this.boardService.createBoard(createBoardDto);
   }
 }

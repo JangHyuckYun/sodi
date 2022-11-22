@@ -10,7 +10,7 @@ export class CreateBoardDto {
     description: '게시글 작성한 유저의 idx',
     default: 5,
   })
-  userId: number;
+  userId = -1;
 
   @ApiProperty({
     type: String,
@@ -18,7 +18,7 @@ export class CreateBoardDto {
     default: 'TEST - TITLE 1',
   })
   @IsNotEmpty({ message: messages.empty.title })
-  title: string;
+  title = '';
 
   @ApiProperty({
     type: String,
@@ -26,51 +26,65 @@ export class CreateBoardDto {
     default: 'TEST - CONTENT loreamloremloreamloremloreamlorem',
   })
   @IsNotEmpty({ message: messages.empty.content })
-  content: string;
+  content = '';
+
+  @ApiProperty({
+    type: String,
+    description: '나라',
+    default: 'TEST - CONTENT loreamloremloreamloremloreamlorem',
+  })
+  @IsNotEmpty({ message: messages.empty.content })
+  country = '';
 
   @ApiProperty({
     type: Number,
     description: '게시글 조회수',
     default: 0,
   })
-  hits: number;
+  hits = 0;
 
   @ApiProperty({
     type: Number,
     description: '게시글 좋아요 수',
     default: 0,
   })
-  likes: number;
+  likes = 0;
 
   @ApiProperty({
-    type: String,
-    description: '게시글의 이미지 1',
+    type: Array,
+    description: '게시글의 이미지 리스트',
   })
-  image1 = '';
-
-  @ApiProperty({
-    type: String,
-    description: '게시글의 이미지 2',
-  })
-  image2 = '';
-
-  @ApiProperty({
-    type: String,
-    description: '게시글의 이미지 3',
-  })
-  image3 = '';
-
-  @ApiProperty({
-    type: String,
-    description: '게시글의 이미지 4',
-  })
-  image4 = '';
-
-  @ApiProperty({
-    type: String,
-    description: '게시글의 이미지 5',
-  })
-  image5 = '';
+  images: Array<string> = [];
+  //
+  // @ApiProperty({
+  //   type: String,
+  //   description: '게시글의 이미지 1',
+  // })
+  // image1 = '';
+  //
+  // @ApiProperty({
+  //   type: String,
+  //   description: '게시글의 이미지 2',
+  // })
+  // image2 = '';
+  //
+  // @ApiProperty({
+  //   type: String,
+  //   description: '게시글의 이미지 3',
+  // })
+  // image3 = '';
+  //
+  // @ApiProperty({
+  //   type: String,
+  //   description: '게시글의 이미지 4',
+  // })
+  // image4 = '';
+  //
+  // @ApiProperty({
+  //   type: String,
+  //   description: '게시글의 이미지 5',
+  // })
+  // image5 = '';
 
   // @ApiProperty({
   //   type: String,
