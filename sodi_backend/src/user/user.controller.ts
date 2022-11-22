@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Req,
   UseGuards,
@@ -19,8 +20,14 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('list/all')
-  async getUser() {
+  async getAllUser() {
     return this.userService.findAll();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('get/:id')
+  async getUser(@Param('id') id: number) {
+    return this.userService.findById(id);
   }
 
   @ApiBody({ type: CreateUserDto })
@@ -35,17 +42,5 @@ export class UserController {
   test(@Body() createUser: CreateUserDto): string {
     console.log(createUser.email);
     return 'asf';
-  }
-
-  @ApiBody({ description: 'asf' })
-  @UseGuards(JwtAuthGuard)
-  @Get('all')
-  getAllUser() {
-    return {
-      success: true,
-      user: {
-        email: 'test@test.com',
-      },
-    };
   }
 }

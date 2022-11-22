@@ -51,10 +51,24 @@ export class CreateBoardDto {
   likes = 0;
 
   @ApiProperty({
-    type: Array,
-    description: '게시글의 이미지 리스트',
+    type: Number,
+    description: '게시글 위치 좌표 x',
+    default: 0,
   })
-  images: Array<string> = [];
+  longitude = 0;
+
+  @ApiProperty({
+    type: Number,
+    description: '게시글 위치 좌표 y',
+    default: 0,
+  })
+  latitude = 0;
+
+  // @ApiProperty({
+  //   type: Array,
+  //   description: '게시글의 이미지 리스트',
+  // })
+  // images: Array<string> = [];
   //
   // @ApiProperty({
   //   type: String,

@@ -30,6 +30,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { MainMapSearch } from "../components/main/mainMapSearch";
 import {MdPostAdd} from "react-icons/md";
 import ImageUploading from 'react-images-uploading';
+import {encode} from "base64-arraybuffer";
 // import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 // import Geocoder from 'react-map-gl-geocoder/src';
 // import 'maplibre-gl/dist/maplibre-gl.css';
@@ -87,7 +88,7 @@ const AddPostModal = ({ addPostModalData, open, handleClose, handleOpen }) => {
     console.log(title, content, country, images)
     if ([title, country].some(str => (str?.trim() || "").length === 0)) return alert("제목 또는 도시의 값을 입력해주세요.");
 
-    await sodiApi.board.uploadPost({ title, content, country, images });
+    await sodiApi.board.uploadPost({ title, content, country,longitude: coordinates[0], latitude: coordinates[1] }, images);
   }, [title, content, country, images]);
 
   return (
@@ -255,6 +256,15 @@ export const Main = () => {
   const [addPostModalData, setAddPostModalData] = useState(initialAddPostModalData);
   const [open, setOpen] = useState(false);
 
+  const [usersAllDataList, setUsersAllDataList] = useState([]);
+  const usersAllDataList_query = useQuery(["userAllDataList"], () => sodiApi.board.findAll());
+
+  if (usersAllDataList_query.isSuccess) {
+
+  }
+
+  console.log('usersAllDataList_query', usersAllDataList_query);
+
   const handleOpen = useCallback(({ coordinates, bbox, id, place_name, text, type }) => {
     setAddPostModalData({ coordinates, bbox, id, place_name, text, type });
     setOpen(true);
@@ -317,6 +327,12 @@ export const Main = () => {
     }, 300);
     return () => clearTimeout(debounce);
   }, [searchKeyword]);
+
+  // useEffect(() => {
+  //   (async () => {
+  //
+  //   })();
+  // })
 
   const onChangeBySearch = ({ target: { value } }) => {
     setSearchKeyword(value);

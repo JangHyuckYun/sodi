@@ -30,7 +30,7 @@ client.interceptors.response.use(
     return response;
   },
   (err) => {
-    console.log('err', err);
+    console.log("err", err);
 
     return new Promise((resolve, reject) => {
       const originalReq = err.config;
@@ -44,39 +44,39 @@ client.interceptors.response.use(
       //   originalReq._retry = true;
       // }
 
-        return reject({
-          ...err?.response?.data,
-          statusText: err.response.statusText
-        });
+      return reject({
+        ...err?.response?.data,
+        statusText: err.response.statusText,
+      });
     });
   }
 );
 
 accessClient.interceptors.response.use(
-    (response) => {
-      return response;
-    },
-    (err) => {
-      console.log('err', err);
+  (response) => {
+    return response;
+  },
+  (err) => {
+    console.log("err", err);
 
-      return new Promise((resolve, reject) => {
-        const originalReq = err.config;
-        console.log("originalReq", originalReq);
+    return new Promise((resolve, reject) => {
+      const originalReq = err.config;
+      console.log("originalReq", originalReq);
 
-        // if (
-        //   err.response.storeAuthState === 401 &&
-        //   err.config &&
-        //   !err.config?.__isRetryRequest
-        // ) { // refresh token 위한
-        //   originalReq._retry = true;
-        // }
+      // if (
+      //   err.response.storeAuthState === 401 &&
+      //   err.config &&
+      //   !err.config?.__isRetryRequest
+      // ) { // refresh token 위한
+      //   originalReq._retry = true;
+      // }
 
-        return reject({
-          ...err?.response?.data,
-          statusText: err.response.statusText
-        });
+      return reject({
+        ...err?.response?.data,
+        statusText: err.response.statusText,
       });
-    }
+    });
+  }
 );
 
 export const sodiApi = {
@@ -92,7 +92,7 @@ export const sodiApi = {
             ...res.data,
             statusCode: res.status,
             statusText: res.statusText,
-            message:"로그인에 성공하였습니다."
+            message: "로그인에 성공하였습니다.",
           };
         })
         .catch((e) => {
@@ -119,15 +119,35 @@ export const sodiApi = {
     },
   },
   board: {
-    uploadPost: async (post) => {
+    findAll: async () => {
+      return await accessClient
+        .post("/board/list/all")
+        .then((res) => res)
+        .catch((err) => {
+          console.log("err", err);
+        });
+    },
+
+    uploadPost: async (post, images) => {
       // let { title, content, country, images } = post;
-      post.images = post.images?.map(d => d?.data_url) ?? [];
-      let result = await accessClient.post(`/board/create`, post).then(res => {
-        console.log(res)
-        return res;
-      }).catch(err => {
-        console.log('err', err)
-      });
-    }
+      images = images?.map((d) => d?.file) ?? [];
+
+      let formData = new FormData();
+      for (let key in post) {
+        formData.append(key,  post[key]);
+      }
+
+      formData.append("files", images);
+
+      let result = await accessClient
+        .post(`/board/create`, formData, { headers: { "Content-Type": "multipart/form-data" } })
+        .then((res) => {
+          console.log(res);
+          return res;
+        })
+        .catch((err) => {
+          console.log("err", err);
+        });
+    },
   },
 };
