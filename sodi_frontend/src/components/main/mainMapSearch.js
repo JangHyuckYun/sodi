@@ -7,8 +7,10 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
-import React, { Suspense } from "react";
+import React, {Suspense, useEffect, useState} from "react";
 import styled from "styled-components";
+import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
+import {queryKeywordState} from "../../store/recoilStates";
 
 const SearchContainer = styled.div`
   flex: 0.25;
@@ -33,7 +35,17 @@ const SearchContainer = styled.div`
   }
 `;
 
-export const MainMapSearch = ({ searchList, goTothePlace, searchKeyword, onChangeBySearch, viewAddPostModal }) => {
+export const MainMapSearch = ({ searchList, goTothePlace, viewAddPostModal }) => {
+    const [searchKeyword, setSearchKeyword] = useState("");
+    const setQueryKeyword = useSetRecoilState(queryKeywordState);
+
+    useEffect(() => {
+        const debounce = setTimeout(() => {
+            console.log('searchKeyword', searchKeyword)
+            return setQueryKeyword(searchKeyword);
+        }, 300);
+        return () => clearTimeout(debounce);
+    }, [searchKeyword]);
 
   return (
     <SearchContainer>
@@ -44,7 +56,7 @@ export const MainMapSearch = ({ searchList, goTothePlace, searchKeyword, onChang
           value={searchKeyword}
           label="Search"
           variant="outlined"
-          onChange={onChangeBySearch}
+          onChange={({target: { value }}) => setSearchKeyword(value)}
         />
       </Box>
       <Box className="searchResults">

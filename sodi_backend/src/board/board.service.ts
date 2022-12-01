@@ -7,7 +7,15 @@ import { Board } from './board.entity';
 export class BoardService {
   constructor(private readonly boardRepository: BoardRepository) {}
 
-  async createBoard(createBoardDto: CreateBoardDto) {
+  async createBoard(
+    createBoardDto: CreateBoardDto,
+    files: Array<Express.Multer.File>,
+  ) {
+    files.forEach((file, idx) => {
+      console.log(`files[${idx}].filename`, files[idx].filename);
+      createBoardDto[`image${idx + 1}`] = files[idx].filename;
+    });
+
     return this.boardRepository.createBoard(createBoardDto);
   }
 

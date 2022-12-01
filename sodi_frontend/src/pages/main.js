@@ -11,6 +11,7 @@ import {
   Layer,
   Map,
   Marker,
+  Popup,
   Source,
   useMap,
 } from "react-map-gl";
@@ -20,6 +21,7 @@ import styled from "styled-components";
 import {
   Box,
   Button,
+  ButtonGroup,
   Modal,
   TextField,
   Typography,
@@ -28,13 +30,21 @@ import { publicKey, sodiApi } from "../utils/api";
 import { useQuery } from "react-query";
 import { ErrorBoundary } from "react-error-boundary";
 import { MainMapSearch } from "../components/main/mainMapSearch";
-import {MdPostAdd} from "react-icons/md";
-import ImageUploading from 'react-images-uploading';
-import {encode} from "base64-arraybuffer";
-// import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
-// import Geocoder from 'react-map-gl-geocoder/src';
+import { MdPostAdd } from "react-icons/md";
+import ImageUploading from "react-images-uploading";
+import { encode } from "base64-arraybuffer";
+import { Link, Outlet } from "react-router-dom";
+import { AddPostModal } from "../modal/addPostModal";
+import { ViewPostModal } from "../modal/viewPostModal";
+import { atom, useRecoilValue } from "recoil";
+import { queryKeywordState } from "../store/recoilStates";
+import { queryKeywordSelector } from "../store/recoilSelector";
 // import 'maplibre-gl/dist/maplibre-gl.css';
 
+/* TODO
+ *  - GO TO THE PLACE 클릭 시 이동 효과 자연스럽게
+ *  - 유저가 생성한 위치 useQuery시 최적화 ( 지도 렌더링시마다 가져와짐 )
+ * */
 const transformRequest = (url, resourceType) => {
   if (resourceType === "Tile" && url.match("localhost")) {
     return {
@@ -60,177 +70,46 @@ const MapContainer = styled.div`
   }
 `;
 
-const AddPostModal = ({ addPostModalData, open, handleClose, handleOpen }) => {
-  const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 700,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
-  };
-  const { coordinates, bbox, id, place_name, text, type } = addPostModalData;
-  const [title, setTitle] = React.useState("");
-  const [content, setContent] = React.useState("");
-  const [country, setCountry] = React.useState(place_name);
-  const [images, setImages] = React.useState([]);
-  const maxNumber = 5;
-  const onChange = (imageList, addUpdateIndex) => {
-    // data for submit
-    console.log(imageList, addUpdateIndex);
-    setImages(imageList);
-  };
-
-  const uploadPost = useCallback(async () => {
-    console.log(title, content, country, images)
-    if ([title, country].some(str => (str?.trim() || "").length === 0)) return alert("제목 또는 도시의 값을 입력해주세요.");
-
-    await sodiApi.board.uploadPost({ title, content, country,longitude: coordinates[0], latitude: coordinates[1] }, images);
-  }, [title, content, country, images]);
-
-  return (
-    <div>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-        data-id={id}
-      >
-        <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Add Post Modal
-          </Typography>
-          <Box id="modal-modal-description" className={"countryBox"}>
-            <Box sx={{ display:"flex", alignItems:'center' }}>
-              <Typography id="modal-modal-title" variant="p" component="p" sx={{ mr:2, flex:0.15 }}>
-                Title
-              </Typography>
-              <TextField
-                  sx={{ flex:0.85 }}
-                  fullWidth
-                  id="outlined-basic"
-                  label=""
-                  variant="outlined"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-              />
-            </Box>
-          </Box>
-
-          <Box id="modal-modal-description" className={"contentBox"}>
-            <Box sx={{ display:"flex", alignItems:'center' }}>
-              <Typography id="modal-modal-title" variant="p" component="p" sx={{ mr:2, flex:0.15 }}>
-                Content
-              </Typography>
-              <TextField
-                  sx={{ flex:0.85 }}
-                  fullWidth
-                  id="outlined-basic"
-                  label=""
-                  variant="outlined"
-                  multiline
-                  rows={6}
-                  maxRows={6}
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-              />
-            </Box>
-          </Box>
-
-          <Box id="modal-modal-description" className={"countryBox"}>
-            <Box sx={{ display:"flex", alignItems:'center' }}>
-              <Typography id="modal-modal-title" variant="p" component="p" sx={{ mr:2, flex:0.15 }}>
-                Country
-              </Typography>
-              <TextField
-                  sx={{ flex:0.85 }}
-                  fullWidth
-                  id="outlined-basic"
-                  label=""
-                  variant="outlined"
-                  defaultValue={place_name}
-                  readOnly={false}
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value)}
-              />
-            </Box>
-          </Box>
-
-          <Box id="modal-modal-description" className={"countryBox"}>
-            <Box sx={{ display:"flex", alignItems:'center' }}>
-              <Typography id="modal-modal-title" variant="p" component="p" sx={{ mr:2, flex:0.15 }}>
-                Images
-              </Typography>
-              <TextField
-                  sx={{ flex:0.85 }}
-                  fullWidth
-                  id="outlined-basic"
-                  label=""
-                  variant="outlined"
-                  defaultValue={place_name}
-              />
-            </Box>
-            <ImageUploading
-                multiple
-                value={images}
-                onChange={onChange}
-                maxNumber={maxNumber}
-                dataURLKey="data_url"
-            >
-              {({
-                  imageList,
-                  onImageUpload,
-                  onImageRemoveAll,
-                  onImageUpdate,
-                  onImageRemove,
-                  isDragging,
-                  dragProps,
-                }) => (
-                  // write your building UI
-                  <div className="upload__image-wrapper">
-                    <button
-                        style={isDragging ? { color: 'red' } : undefined}
-                        onClick={onImageUpload}
-                        {...dragProps}
-                    >
-                      Click or Drop here
-                    </button>
-                    &nbsp;
-                    <button onClick={onImageRemoveAll}>Remove all images</button>
-                    {imageList.map((image, index) => (
-                        <div key={index} className="image-item">
-                          <img src={image['data_url']} alt="" width="100" />
-                          <div className="image-item__btn-wrapper">
-                            <button onClick={() => onImageUpdate(index)}>Update</button>
-                            <button onClick={() => onImageRemove(index)}>Remove</button>
-                          </div>
-                        </div>
-                    ))}
-                  </div>
-              )}
-            </ImageUploading>
-          </Box>
-          <Box id={"modal-modal-description"}>
-            <Button onClick={() => uploadPost()}>Upload Post</Button>
-          </Box>
-        </Box>
-      </Modal>
-    </div>
-  );
-};
-
 const AddPostButton = styled(Button)`
   position: absolute !important;
   left: 27%;
   background: #6a8fbc;
   z-index: 99;
-  
+
   & svg {
     font-size: 32px;
+  }
+`;
+
+const PreviewPopup = styled(Popup)`
+  width: 100%;
+  .mapboxgl-popup-content {
+    h6 {
+      margin-bottom: 5px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      font-weight: bold;
+    }
+
+    p {
+      margin: 0 0 20px 0;
+    }
+
+    .btn-group {
+      width: 100%;
+      display: flex;
+      justify-content: right;
+      margin-top: 30px;
+      padding-top: 5px;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+
+      button {
+      }
+    }
+    .mapboxgl-popup-close-button {
+      width: 26px;
+      height: 22px;
+      font-size: 22px;
+    }
   }
 `;
 
@@ -246,33 +125,49 @@ export const Main = () => {
     type: "",
   };
   const [viewState, setViewState] = React.useState({
-    longitude: 0,
-    latitude: 0,
-    zoom: 3.5,
+    longitude: 127.03743678547232,
+    latitude: 37.52019604873446,
+    zoom: 6,
     transitionDuration: 100,
   });
-  const [searchKeyword, setSearchKeyword] = useState("");
-  const [queryKeyword, setQueryKeyword] = useState("");
-  const [addPostModalData, setAddPostModalData] = useState(initialAddPostModalData);
+
+  const [addPostModalData, setAddPostModalData] = useState(
+    initialAddPostModalData
+  );
   const [open, setOpen] = useState(false);
 
-  const [usersAllDataList, setUsersAllDataList] = useState([]);
-  const usersAllDataList_query = useQuery(["userAllDataList"], () => sodiApi.board.findAll());
+  // const [usersAllDataList, setUsersAllDataList] = useState([]);
+  const usersAllDataList_query = useQuery(["userAllDataList"], () =>
+    sodiApi.board.findAll()
+  );
 
-  if (usersAllDataList_query.isSuccess) {
+  const [popupInfo, setPopupInfo] = useState(null);
 
-  }
-
-  console.log('usersAllDataList_query', usersAllDataList_query);
-
-  const handleOpen = useCallback(({ coordinates, bbox, id, place_name, text, type }) => {
-    setAddPostModalData({ coordinates, bbox, id, place_name, text, type });
-    setOpen(true);
-  }, []);
+  const handleOpen = useCallback(
+    ({ coordinates, bbox, id, place_name, text, type }) => {
+      setAddPostModalData({ coordinates, bbox, id, place_name, text, type });
+      setOpen(true);
+    },
+    []
+  );
+  const [viewPostOpen, setViewPostOpen] = useState(false);
+  const [viewPostModalData, setViewPostModalData] = useState(false);
+  const viewPostHandleOpen = useCallback(
+    ({ coordinates, bbox, id, place_name, text, type }) => {
+      setViewPostModalData({ coordinates, bbox, id, place_name, text, type });
+      setViewPostOpen(true);
+    },
+    []
+  );
 
   const handleClose = useCallback(() => {
     console.log("close");
     setOpen(false);
+  }, []);
+
+  const viewPostHandleClose = useCallback(() => {
+    console.log("close");
+    setViewPostOpen(false);
   }, []);
 
   const geolocateControlRef = React.useCallback((ref) => {
@@ -286,32 +181,6 @@ export const Main = () => {
   const mapRef = useRef();
   const map = useMap();
 
-  useEffect(() => {
-    /*
-     * searchType
-     *  - place
-     *  - postcode
-     *  - address
-     *  - country
-     *  - region
-     *  - district
-     *  - locality
-     *  - neighborhood
-     *  - poi
-     *
-     * search Optional parameters
-     *  - ip
-     *  - coordinate
-     *  - none
-     *
-     *
-     * */
-    (async () => {
-      // let data = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/can.json?proximity=ip&types=place%2Cpostcode%2Caddress&access_token=${publicKey}`).then(result => result.json());
-      // console.log(data)
-    })();
-  }, []);
-
   const layerStyle = {
     id: "point",
     type: "circle",
@@ -321,24 +190,9 @@ export const Main = () => {
     },
   };
 
-  useEffect(() => {
-    const debounce = setTimeout(() => {
-      return setQueryKeyword(searchKeyword);
-    }, 300);
-    return () => clearTimeout(debounce);
-  }, [searchKeyword]);
+  const queryKeyword = useRecoilValue(queryKeywordState);
 
-  // useEffect(() => {
-  //   (async () => {
-  //
-  //   })();
-  // })
-
-  const onChangeBySearch = ({ target: { value } }) => {
-    setSearchKeyword(value);
-  };
-
-  let { data } = useQuery(
+  let { data, response } = useQuery(
     ["searchResultList", queryKeyword],
     () => sodiApi.map.searchResultList(queryKeyword),
     {
@@ -377,18 +231,24 @@ export const Main = () => {
       <AddPostModal
         addPostModalData={addPostModalData}
         open={open}
-        handleOpen={handleOpen}
         handleClose={handleClose}
       />
-      <AddPostButton color={"primary"} onClick={() => handleOpen(initialAddPostModalData)}>
+      <ViewPostModal
+        viewPostModalData={viewPostModalData}
+        open={viewPostOpen}
+        handleClose={viewPostHandleClose}
+      />
+      {/*<Link style={{ position:'absolute', zIndex:1111 }} to={"/main/modal/1"}>GOGOGO</Link>*/}
+      <AddPostButton
+        color={"primary"}
+        onClick={() => handleOpen(initialAddPostModalData)}
+      >
         <MdPostAdd />
       </AddPostButton>
       <FlexContainer>
         <MainMapSearch
           searchList={data?.features}
           goTothePlace={goTothePlace}
-          searchKeyword={searchKeyword}
-          onChangeBySearch={onChangeBySearch}
           viewAddPostModal={handleOpen}
         />
         <MapContainer>
@@ -410,12 +270,55 @@ export const Main = () => {
               </Source>
             </Suspense>
 
-            <Marker
-              longitude={-100}
-              latitude={40}
-              anchor={"bottom"}
-              onClick={(e) => console.log("asfsaf")}
-            />
+            {!usersAllDataList_query.isSuccess
+              ? ""
+              : usersAllDataList_query.data.data.map((post) => (
+                  <Marker
+                    key={post.id}
+                    data-id={post.id}
+                    longitude={post.longitude}
+                    latitude={post.latitude}
+                    onClick={(e) => {
+                      e.originalEvent.stopPropagation();
+                      console.log("click", post.title, post.content);
+                      setPopupInfo(post);
+                    }}
+                  />
+                ))}
+
+            {popupInfo && (
+              <PreviewPopup
+                anchor="top"
+                longitude={Number(popupInfo.longitude)}
+                latitude={Number(popupInfo.latitude)}
+                onClose={() => setPopupInfo(null)}
+              >
+                <Typography
+                  id="modal-description"
+                  variant={"h6"}
+                  sx={{ whiteSpace: "pre-line", mt: 2, mb: 1 }}
+                >
+                  {popupInfo.title}
+                </Typography>
+                <Typography
+                  id="modal-description"
+                  sx={{ whiteSpace: "pre-line" }}
+                >
+                  {popupInfo.content}
+                </Typography>
+                <Box className={"btn-group"}>
+                  <Button
+                    size={"small"}
+                    onClick={(e) => {
+                      setViewPostModalData(popupInfo);
+                      setViewPostOpen(true);
+                    }}
+                  >
+                    Read more
+                  </Button>
+                </Box>
+              </PreviewPopup>
+            )}
           </Map>
         </MapContainer>
       </FlexContainer>

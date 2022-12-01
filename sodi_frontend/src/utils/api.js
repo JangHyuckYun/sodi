@@ -2,7 +2,7 @@ import axios from "axios";
 // import https from "https";
 
 export const publicKey = process.env.REACT_APP_PUBLIC_KEY;
-
+const MULTIPART = { "Content-Type": "multipart/form-data" };
 export const client = axios.create({
   baseURL: process.env.REACT_APP_API_END_POINT,
   timeout: 180000,
@@ -131,16 +131,18 @@ export const sodiApi = {
     uploadPost: async (post, images) => {
       // let { title, content, country, images } = post;
       images = images?.map((d) => d?.file) ?? [];
-
       let formData = new FormData();
       for (let key in post) {
-        formData.append(key,  post[key]);
+        formData.append(key, post[key]);
       }
+      images.forEach((file) => {
+        formData.append("files", file);
+      });
+      // formData.append("files", new Blob([JSON.stringify(images)], { type: 'image/png' }));
+      // formData.append("files", JSON.stringify(images));
 
-      formData.append("files", images);
-
-      let result = await accessClient
-        .post(`/board/create`, formData, { headers: { "Content-Type": "multipart/form-data" } })
+      return await accessClient
+        .post(`/board/create`, formData, { headers: MULTIPART })
         .then((res) => {
           console.log(res);
           return res;

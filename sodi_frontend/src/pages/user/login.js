@@ -49,7 +49,7 @@ export const LoginContainer = () => {
     if ([200,201].includes(statusCode)) {
       alert(message);
 
-      return navigate("/main");
+      return navigate("/main/map");
     }
     return alert(message);
   };

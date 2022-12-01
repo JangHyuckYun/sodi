@@ -63,46 +63,4 @@ export class CreateBoardDto {
     default: 0,
   })
   latitude = 0;
-
-  // @ApiProperty({
-  //   type: Array,
-  //   description: '게시글의 이미지 리스트',
-  // })
-  // images: Array<string> = [];
-  //
-  // @ApiProperty({
-  //   type: String,
-  //   description: '게시글의 이미지 1',
-  // })
-  // image1 = '';
-  //
-  // @ApiProperty({
-  //   type: String,
-  //   description: '게시글의 이미지 2',
-  // })
-  // image2 = '';
-  //
-  // @ApiProperty({
-  //   type: String,
-  //   description: '게시글의 이미지 3',
-  // })
-  // image3 = '';
-  //
-  // @ApiProperty({
-  //   type: String,
-  //   description: '게시글의 이미지 4',
-  // })
-  // image4 = '';
-  //
-  // @ApiProperty({
-  //   type: String,
-  //   description: '게시글의 이미지 5',
-  // })
-  // image5 = '';
-
-  // @ApiProperty({
-  //   type: String,
-  //   description: '댓글 리스트',
-  // })
-  // commentList: Comment[];
 }

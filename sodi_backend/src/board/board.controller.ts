@@ -1,9 +1,11 @@
 import {
+  Bind,
   Body,
   Controller,
   Get,
   Param,
   Post,
+  Req,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -12,7 +14,9 @@ import { CreateBoardDto } from './dto/board.create.dto';
 import { BoardService } from './board.service';
 import { Board } from './board.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import * as path from 'path';
+import { Express } from 'express';
 
 @Controller('board')
 export class BoardController {
@@ -20,9 +24,9 @@ export class BoardController {
 
   @UseGuards(JwtAuthGuard)
   @Post('list/all')
-  async allBoardList(): Promise<Board[]> {
+  async allBoardList(@Req() req): Promise<Board[]> {
     const result = this.boardService.findAll();
-    console.log('findAll', result);
+    console.log('findAll', result, req);
     return result;
   }
 
@@ -32,18 +36,25 @@ export class BoardController {
   }
 
   @Post('create')
-  @UseInterceptors(FileInterceptor('files'))
+  @UseInterceptors(FilesInterceptor('files'))
+  @Bind(UploadedFiles())
+  @UseGuards(JwtAuthGuard)
   createBoard(
-    @UploadedFiles() files,
+    @UploadedFiles() files: Array<Express.Multer.File>,
     @Body() createBoardDto: CreateBoardDto,
-  ): void {
-    console.log('createBoardDto', createBoardDto);
-    console.log('images', files);
-    // let result = {
-    //   fileName: file.originalname,
-    //   savedPath: path.replace(/\\/gi, '/'),
-    //   size: file.size,
-    // };
-    // this.boardService.createBoard(createBoardDto);
+    @Req() req,
+  ) {
+    createBoardDto.userId = req?.user?.id;
+
+    const result = files.map((file) => {
+      // const path = file.path.replace(this.config.get('ATTACH_SAVE_PATH'), '');
+      console.log('file', file);
+      return {
+        filesName: file.originalname,
+        // savedPath: path.replace(/\\/gi, '/'),
+        size: file.size,
+      };
+    });
+    this.boardService.createBoard(createBoardDto, files);
   }
 }

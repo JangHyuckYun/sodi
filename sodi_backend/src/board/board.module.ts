@@ -15,16 +15,16 @@ import { format } from 'light-date';
 
 @Module({
   imports: [
-    TypeOrmExModule.forCustomRepository([BoardRepository]),
-    TypeOrmModule.forFeature([Board]),
     MulterModule.registerAsync({
       imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: async (config: ConfigService) => ({
         storage: diskStorage({
           destination: function (req, file, cb) {
+            console.log('destination', file, cb);
             // 파일저장위치 + 년월 에다 업로드 파일을 저장한다.
             // 요 부분을 원하는 데로 바꾸면 된다.
-            const dest = `${config.get('ATTACH_SAVE_PATH')}/${format(
+            const dest = `${config.get('ATTACH_SAVE_PATH_WINDOW')}/${format(
               new Date(),
               '{yyyy}{MM}',
             )}/`;
@@ -36,6 +36,7 @@ import { format } from 'light-date';
             cb(null, dest);
           },
           filename: (req, file, cb) => {
+            console.log('asfasf');
             // 업로드 후 저장되는 파일명을 랜덤하게 업로드 한다.(동일한 파일명을 업로드 됐을경우 오류방지)
             const randomName = Array(32)
               .fill(null)
@@ -45,11 +46,12 @@ import { format } from 'light-date';
           },
         }),
       }),
-      inject: [ConfigService],
     }),
+    TypeOrmExModule.forCustomRepository([BoardRepository]),
+    TypeOrmModule.forFeature([Board]),
   ],
   controllers: [BoardController],
   providers: [BoardService],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule, MulterModule],
 })
 export class BoardModule {}

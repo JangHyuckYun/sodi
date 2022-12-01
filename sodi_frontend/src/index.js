@@ -1,29 +1,34 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { ReactQueryDevtools } from 'react-query/devtools';
+import React, { Suspense } from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import App from "./App";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { ReactQueryDevtools } from "react-query/devtools";
+import { RecoilRoot } from "recoil";
 
 const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: {
-            retry: 0,
-            // useErrorBoundary: true,
-            suspense:true,
-        },
-        mutations: {
-            useErrorBoundary: true,
-        },
+  defaultOptions: {
+    queries: {
+      retry: 0,
+      // useErrorBoundary: true,
+      suspense: true,
     },
+    mutations: {
+      useErrorBoundary: true,
+    },
+  },
 });
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ReactQueryDevtools initialIsOpen={true} />
-      <App />
-    </QueryClientProvider>
+    <RecoilRoot>
+      <QueryClientProvider client={queryClient}>
+        {/*<ReactQueryDevtools initialIsOpen={false} />*/}
+        {/*<Suspense fallback={<div>Loading...</div>}>*/}
+          <App />
+        {/*</Suspense>*/}
+      </QueryClientProvider>
+    </RecoilRoot>
   </React.StrictMode>
 );
 

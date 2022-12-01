@@ -8,12 +8,15 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import * as dotenv from 'dotenv';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { UserRepository } from '../user/user.repository';
+import { TypeOrmExModule } from '../database/typeorm-ex.module';
 
 dotenv.config();
 
 @Module({
   imports: [
     UserModule,
+    TypeOrmExModule.forCustomRepository([UserRepository]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],

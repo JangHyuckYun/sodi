@@ -23,23 +23,30 @@ export class Board {
   @Column({ name: 'board_content', comment: '게시글 내용' })
   content: string;
 
+  @Column({ name: 'board_country', comment: '게시글 나라' })
+  country: string;
+
   @Column({ type: 'bigint', name: 'board_hits', comment: '게시글 조회수' })
   hits: number;
 
   @Column({ type: 'bigint', name: 'board_likes', comment: '게시글 좋아요 수' })
   likes: number;
 
-  @Column({ name: 'board_longitude', comment: '게시글의 위치 X' })
+  @Column({
+    name: 'board_longitude',
+    comment: '게시글의 위치 X',
+    type: 'float',
+  })
   longitude: number;
 
-  @Column({ name: 'board_latitude', comment: '게시글의 위치 Y' })
+  @Column({ name: 'board_latitude', comment: '게시글의 위치 Y', type: 'float' })
   latitude: number;
 
   @Column({
     name: 'board_image_1',
     nullable: false,
     comment: '게시글의 이미지 1',
-    type: 'longblob',
+    // type: 'longblob',
     default: '',
   })
   image1: string;
@@ -47,7 +54,7 @@ export class Board {
   @Column({
     name: 'board_image_2',
     comment: '게시글의 이미지 2 ',
-    type: 'longblob',
+    // type: 'longblob',
     default: '',
   })
   image2: string;
@@ -55,7 +62,7 @@ export class Board {
   @Column({
     name: 'board_image_3',
     comment: '게시글의 이미지 3 ',
-    type: 'longblob',
+    // type: 'longblob',
     default: '',
   })
   image3: string;
@@ -63,7 +70,7 @@ export class Board {
   @Column({
     name: 'board_image_4',
     comment: '게시글의 이미지 4 ',
-    type: 'longblob',
+    // type: 'longblob',
     default: '',
   })
   image4: string;
@@ -71,7 +78,7 @@ export class Board {
   @Column({
     name: 'board_image_5',
     comment: '게시글의 이미지 5 ',
-    type: 'longblob',
+    // type: 'longblob',
     default: '',
   })
   image5: string;
