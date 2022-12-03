@@ -25,14 +25,14 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('/login')
   async login(@Request() req) {
-    console.log('connect...', req, req.user);
+    // console.log('connect...', req, req.user);
     return this.authService.login(req.user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('/verify')
   async verify(@Request() req) {
-    console.log('connect...', req, req.accessToken);
-    return this.authService.verifyToken(req.accessToken);
+    console.log('connect...', req.accessToken);
+    return this.authService.verify(req.accessToken);
   }
 }

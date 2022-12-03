@@ -2,11 +2,18 @@ import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
-import { QueryClient, QueryClientProvider } from "react-query";
+import {QueryCache, QueryClient, QueryClientProvider} from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { RecoilRoot } from "recoil";
+import toast from "react-hot-toast";
 
 const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+      onError: (error) => {
+          console.log('error', error);
+          toast.error(error.message);
+      }
+  }),
   defaultOptions: {
     queries: {
       retry: 0,
@@ -14,7 +21,7 @@ const queryClient = new QueryClient({
       suspense: true,
     },
     mutations: {
-      useErrorBoundary: true,
+      useErrorBoundary: (error) => error.response?.status >= 500,
     },
   },
 });
@@ -25,7 +32,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <QueryClientProvider client={queryClient}>
         {/*<ReactQueryDevtools initialIsOpen={false} />*/}
         {/*<Suspense fallback={<div>Loading...</div>}>*/}
-          <App />
+        <App />
         {/*</Suspense>*/}
       </QueryClientProvider>
     </RecoilRoot>

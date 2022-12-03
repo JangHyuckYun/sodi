@@ -12,6 +12,7 @@ const Redirect = ({ url }) => {
 export const AuthRoute = ({ element, ...rest }) => {
   console.log(element, rest);
   return <Route
+      async
     {...rest}
     element={sodiApi.user.verify() ? element : <div></div>} />;
 };

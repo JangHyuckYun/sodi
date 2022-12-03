@@ -22,13 +22,13 @@ export class Comment {
   content: string;
 
   @Column({ name: 'comment_class', comment: '댓글의 계층' })
-  class: string;
+  depth: number;
 
   @Column({ name: 'comment_order', comment: '댓글과 대댓글의 순서' })
-  order: string;
+  order: number;
 
   @Column({ name: 'comment_group_num', comment: '댓글 그룹' })
-  groupNum: string;
+  groupNum: number;
 
   @ManyToOne(() => Board, (board) => board.id)
   @JoinColumn({ name: 'board_id' })

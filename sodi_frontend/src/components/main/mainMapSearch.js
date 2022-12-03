@@ -14,14 +14,23 @@ import {queryKeywordState} from "../../store/recoilStates";
 
 const SearchContainer = styled.div`
   flex: 0.25;
-  position: relative;
+  position: fixed;
+  background: white;
+  width: 25%;
   height: 100%;
-  box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
   z-index: 1;
   padding: 15px;
+  border-radius: 12px;
+  
+  
 
   & .inputContainer {
     margin-bottom: 35px;
+    
+    input {
+      border-radius: 12px;
+    }
   }
 
   & .searchResults {
@@ -35,17 +44,20 @@ const SearchContainer = styled.div`
   }
 `;
 
-export const MainMapSearch = ({ searchList, goTothePlace, viewAddPostModal }) => {
+export const MainMapSearch = React.memo(({ searchList, goTothePlace, viewAddPostModal, setQueryKeyword, clickPos }) => {
     const [searchKeyword, setSearchKeyword] = useState("");
-    const setQueryKeyword = useSetRecoilState(queryKeywordState);
-
+    // const setQueryKeyword = useSetRecoilState(queryKeywordState);
+    console.log('clickPos', clickPos)
     useEffect(() => {
         const debounce = setTimeout(() => {
-            console.log('searchKeyword', searchKeyword)
             return setQueryKeyword(searchKeyword);
         }, 300);
         return () => clearTimeout(debounce);
     }, [searchKeyword]);
+
+    useEffect(() => {
+        setSearchKeyword(`${clickPos.lng},${clickPos.lat}`);
+    }, [clickPos]);
 
   return (
     <SearchContainer>
@@ -110,4 +122,4 @@ export const MainMapSearch = ({ searchList, goTothePlace, viewAddPostModal }) =>
       </Box>
     </SearchContainer>
   );
-};
+});

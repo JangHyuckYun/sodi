@@ -1,10 +1,13 @@
-import {Route, Routes, useLocation, Navigate, Outlet} from "react-router-dom";
+import { Route, Routes, useLocation, Navigate, Outlet } from "react-router-dom";
 import { Home } from "../pages/home";
 import { LoginContainer } from "../pages/user/login";
 import { JoinContainer } from "../pages/user/join";
 import { AnimatePresence } from "framer-motion";
 import { Main } from "../pages/main";
 import { TestModal } from "../pages/testModal";
+import { AuthRoute } from "../utils/AuthRoute";
+import { sodiApi } from "../utils/api";
+import { lazy } from "react";
 
 function isLogin() {
   return !!localStorage.getItem("accessToken");
@@ -13,6 +16,18 @@ function isLogin() {
 function verify(element) {
   // console.log('sodiApi.user.verify()', await sodiApi.user.verify())
   return isLogin() ? element : <Navigate to={"/auth/login"} />;
+}
+
+async function isLogin2() {
+  return sodiApi.user.verify();
+}
+
+async function verify2(element) {
+  console.log("await isLogin2()", await isLogin2());
+  // console.log('sodiApi.user.verify()', await sodiApi.user.verify())
+  return lazy(async () =>
+    (await isLogin2()) ? element : <Navigate to={"/auth/login"} />
+  );
 }
 
 function AnimatedRoutes() {
@@ -24,6 +39,11 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         {/*<Route path={"/"} element={<Home />} />*/}
         <Route path={"/"} element={<Navigate to={"/main/map"} />} />
+        {/*<Route*/}
+        {/*  async*/}
+        {/*  path={"/test"}*/}
+        {/*  element={verify2(<Navigate to={"/main/map"} />)}*/}
+        {/*/>*/}
         <Route path={"/auth/login"} element={<LoginContainer />} />
         <Route path={"/auth/join"} element={<JoinContainer />} />
         <Route path={"/main"} element={verify(<Outlet />)}>

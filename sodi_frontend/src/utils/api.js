@@ -1,4 +1,5 @@
 import axios from "axios";
+import toast from "react-hot-toast";
 // import https from "https";
 
 export const publicKey = process.env.REACT_APP_PUBLIC_KEY;
@@ -57,11 +58,23 @@ accessClient.interceptors.response.use(
     return response;
   },
   (err) => {
-    console.log("err", err);
-
     return new Promise((resolve, reject) => {
-      const originalReq = err.config;
-      console.log("originalReq", originalReq);
+      let {
+        response: {
+          data: { statusCode },
+        },
+      } = err;
+      let back = false;
+      console.log(err);
+      console.log("statusCode", statusCode);
+      switch (statusCode) {
+        case 401:
+        case 410: // 유효하지 않은 토큰
+          back = true;
+          break;
+        case 500:
+          break;
+      }
 
       // if (
       //   err.response.storeAuthState === 401 &&
@@ -73,6 +86,7 @@ accessClient.interceptors.response.use(
 
       return reject({
         ...err?.response?.data,
+        back,
         statusText: err.response.statusText,
       });
     });
@@ -101,10 +115,16 @@ export const sodiApi = {
     },
     verify: async () => {
       const accessToken = localStorage.getItem("accessToken");
+      console.log("accessToken", accessToken);
       if (!accessToken) return false;
 
-      let result = await accessClient.post(`/auth/verify`, { accessToken });
-      console.log(result);
+      let result = await accessClient
+        .post(`/auth/verify`, { accessToken })
+        .then((e) => {
+          console.log("e", e);
+          return e;
+        });
+      console.log("result", result);
     },
     findAll: async () => {
       return await client.post(`/user/list/all`).then((res) => res.data);
@@ -124,7 +144,9 @@ export const sodiApi = {
         .post("/board/list/all")
         .then((res) => res)
         .catch((err) => {
-          console.log("err", err);
+          console.log('error', err)
+          toast.error('error');
+          return new Promise((res, rej) => rej(err));
         });
     },
 
@@ -138,8 +160,6 @@ export const sodiApi = {
       images.forEach((file) => {
         formData.append("files", file);
       });
-      // formData.append("files", new Blob([JSON.stringify(images)], { type: 'image/png' }));
-      // formData.append("files", JSON.stringify(images));
 
       return await accessClient
         .post(`/board/create`, formData, { headers: MULTIPART })
@@ -151,5 +171,19 @@ export const sodiApi = {
           console.log("err", err);
         });
     },
+  },
+  comment: {
+    createComment: async ({ boardId, comment }) => {
+      return await accessClient
+          .post(`/comment/create`, { boardId, comment })
+          .then((e) => {
+            console.log('e', e)
+            return e;
+          })
+          .catch(e => {
+            console.log('e', e)
+            return e;
+          })
+    }
   },
 };

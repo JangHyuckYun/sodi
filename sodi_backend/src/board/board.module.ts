@@ -12,6 +12,7 @@ import { config } from 'rxjs';
 import * as fs from 'fs';
 import { extname } from 'path';
 import { format } from 'light-date';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -51,7 +52,11 @@ import { format } from 'light-date';
     TypeOrmModule.forFeature([Board]),
   ],
   controllers: [BoardController],
-  providers: [BoardService],
-  exports: [TypeOrmModule, MulterModule],
+  providers: [BoardService, JwtService],
+  exports: [
+    TypeOrmModule,
+    MulterModule,
+    TypeOrmExModule.forCustomRepository([BoardRepository]),
+  ],
 })
 export class BoardModule {}

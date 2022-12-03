@@ -20,6 +20,14 @@ export const errorMessages = {
         content: '게시글의 내용을 입력해주세요.',
       },
     },
+
+    createComment: {
+      empty: {
+        boardId: '게시글을 통해 댓글을 작성하여 주세요.',
+        comment: '댓글 내용을 입력해 주세요.',
+      },
+    },
+
     urlList: {
       '/auth/login': '로그인 또는 비밀번호가 일치하지 않습니다.',
     },

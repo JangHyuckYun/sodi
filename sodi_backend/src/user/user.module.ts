@@ -6,6 +6,7 @@ import { User } from './user.entity';
 import { UserRepository } from './user.repository';
 import { CreateUserDto } from './dto/user.create.dto';
 import { TypeOrmExModule } from '../database/typeorm-ex.module';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { TypeOrmExModule } from '../database/typeorm-ex.module';
     TypeOrmModule.forFeature([User]),
   ],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService, JwtService],
   exports: [UserService],
 })
 export class UserModule {}

@@ -39,6 +39,8 @@ import { ViewPostModal } from "../modal/viewPostModal";
 import { atom, useRecoilValue } from "recoil";
 import { queryKeywordState } from "../store/recoilStates";
 import { queryKeywordSelector } from "../store/recoilSelector";
+import toast from "react-hot-toast";
+import { ReactComponent as CustomMarker } from "../assets/images/customMarker.svg";
 // import 'maplibre-gl/dist/maplibre-gl.css';
 
 /* TODO
@@ -62,11 +64,26 @@ const FlexContainer = styled.div`
 
 const MapContainer = styled.div`
   position: relative;
-  flex: 0.75;
+  width: 100%;
+  height: 100vh;
 
   & canvas {
     width: 100%;
     height: 100%;
+  }
+
+  .mapboxgl-marker {
+    .customMarker {
+      .st1 {
+        fill: url("#image");
+      }
+    }
+    .markerMain {
+      max-width: 50px;
+    }
+    .markerInImage {
+      width: 50px;
+    }
   }
 `;
 
@@ -135,13 +152,41 @@ export const Main = () => {
     initialAddPostModalData
   );
   const [open, setOpen] = useState(false);
+  const [popupInfo, setPopupInfo] = useState(null);
+
+  const [queryKeyword, setQueryKeyword] = useState("");
+  const [viewPostOpen, setViewPostOpen] = useState(false);
+  const [clickPos, setClickPos] = useState({ lng: 0, lat: 0 });
+  // const queryKeyword = useRecoilValue(queryKeywordState);
 
   // const [usersAllDataList, setUsersAllDataList] = useState([]);
-  const usersAllDataList_query = useQuery(["userAllDataList"], () =>
-    sodiApi.board.findAll()
+  const usersAllDataList_query = useQuery(
+    ["userAllDataList"],
+    () => sodiApi.board.findAll(),
+    {
+      onError: (err) => (error) => toast.error("asfsfafas"),
+    }
   );
 
-  const [popupInfo, setPopupInfo] = useState(null);
+  console.log("usersAllDataList_query", usersAllDataList_query);
+
+  let { data, response } = useQuery(
+    ["searchResultList", queryKeyword],
+    () => sodiApi.map.searchResultList(queryKeyword),
+    {
+      enabled: !!queryKeyword,
+      cacheTime: 6 * 10 * 1000,
+    }
+  );
+
+  const layerStyle = {
+    id: "point",
+    type: "circle",
+    paint: {
+      "circle-radius": 7,
+      "circle-color": "#007cbf",
+    },
+  };
 
   const handleOpen = useCallback(
     ({ coordinates, bbox, id, place_name, text, type }) => {
@@ -150,11 +195,18 @@ export const Main = () => {
     },
     []
   );
-  const [viewPostOpen, setViewPostOpen] = useState(false);
   const [viewPostModalData, setViewPostModalData] = useState(false);
   const viewPostHandleOpen = useCallback(
-    ({ coordinates, bbox, id, place_name, text, type }) => {
-      setViewPostModalData({ coordinates, bbox, id, place_name, text, type });
+    ({ coordinates, bbox, id, place_name, text, type, images }) => {
+      setViewPostModalData({
+        coordinates,
+        bbox,
+        id,
+        place_name,
+        text,
+        type,
+        images,
+      });
       setViewPostOpen(true);
     },
     []
@@ -179,27 +231,7 @@ export const Main = () => {
   }, []);
 
   const mapRef = useRef();
-  const map = useMap();
-
-  const layerStyle = {
-    id: "point",
-    type: "circle",
-    paint: {
-      "circle-radius": 7,
-      "circle-color": "#007cbf",
-    },
-  };
-
-  const queryKeyword = useRecoilValue(queryKeywordState);
-
-  let { data, response } = useQuery(
-    ["searchResultList", queryKeyword],
-    () => sodiApi.map.searchResultList(queryKeyword),
-    {
-      enabled: !!queryKeyword,
-      cacheTime: 6 * 10 * 1000,
-    }
-  );
+  // const map = useMap();
 
   const goTothePlace = useCallback(
     ({
@@ -245,83 +277,86 @@ export const Main = () => {
       >
         <MdPostAdd />
       </AddPostButton>
-      <FlexContainer>
-        <MainMapSearch
-          searchList={data?.features}
-          goTothePlace={goTothePlace}
-          viewAddPostModal={handleOpen}
-        />
-        <MapContainer>
-          <Map
-            ref={mapRef}
-            {...viewState}
-            onMove={(evt) => setViewState(evt.viewState)}
-            onClick={(evt) => console.log(evt)}
-            onViewPortChange={setViewState}
-            mapboxAccessToken={publicKey}
-            // style={{ width: window.innerWidth, height: window.innerHeight }}
-            mapStyle="mapbox://styles/janghyuck/claib2r2b000115nv6hdl2oct"
-          >
-            <GeolocateControl ref={mapRef} />
+      {/*<FlexContainer>*/}
+      <MainMapSearch
+        searchList={data?.features}
+        goTothePlace={goTothePlace}
+        viewAddPostModal={handleOpen}
+        setQueryKeyword={setQueryKeyword}
+        clickPos={clickPos}
+      />
+      <MapContainer>
+        <Map
+          ref={mapRef}
+          {...viewState}
+          onMove={(evt) => setViewState(evt.viewState)}
+          onClick={(evt) => setClickPos(evt.lngLat)}
+          onViewPortChange={setViewState}
+          mapboxAccessToken={publicKey}
+          // style={{ width: window.innerWidth, height: window.innerHeight }}
+          mapStyle="mapbox://styles/janghyuck/claib2r2b000115nv6hdl2oct"
+        >
+          <GeolocateControl ref={mapRef} />
 
-            <Suspense fallback={<h1>Loading... </h1>}>
-              <Source id={"my-Data"} type={"geojson"} data={data}>
-                <Layer {...layerStyle} />
-              </Source>
-            </Suspense>
+          <Suspense fallback={<h1>Loading... </h1>}>
+            <Source id={"my-Data"} type={"geojson"} data={data}>
+              <Layer {...layerStyle} />
+            </Source>
+          </Suspense>
 
-            {!usersAllDataList_query.isSuccess
-              ? ""
-              : usersAllDataList_query.data.data.map((post) => (
-                  <Marker
-                    key={post.id}
-                    data-id={post.id}
-                    longitude={post.longitude}
-                    latitude={post.latitude}
-                    onClick={(e) => {
-                      e.originalEvent.stopPropagation();
-                      console.log("click", post.title, post.content);
-                      setPopupInfo(post);
-                    }}
-                  />
-                ))}
+          {!usersAllDataList_query
+            ? ""
+            : usersAllDataList_query.data.data.map((post) => (
+                <Marker
+                  key={post.id}
+                  data-id={post.id}
+                  longitude={post.longitude}
+                  latitude={post.latitude}
+                  className={"marker"}
+                  onClick={(e) => {
+                    e.originalEvent.stopPropagation();
+                    console.log("click", post.title, post.content);
+                    setPopupInfo(post);
+                  }}
+                />
+              ))}
 
-            {popupInfo && (
-              <PreviewPopup
-                anchor="top"
-                longitude={Number(popupInfo.longitude)}
-                latitude={Number(popupInfo.latitude)}
-                onClose={() => setPopupInfo(null)}
+          {popupInfo && (
+            <PreviewPopup
+              anchor="top"
+              longitude={Number(popupInfo.longitude)}
+              latitude={Number(popupInfo.latitude)}
+              onClose={() => setPopupInfo(null)}
+            >
+              <Typography
+                id="modal-description"
+                variant={"h6"}
+                sx={{ whiteSpace: "pre-line", mt: 2, mb: 1 }}
               >
-                <Typography
-                  id="modal-description"
-                  variant={"h6"}
-                  sx={{ whiteSpace: "pre-line", mt: 2, mb: 1 }}
+                {popupInfo.title}
+              </Typography>
+              <Typography
+                id="modal-description"
+                sx={{ whiteSpace: "pre-line" }}
+              >
+                {popupInfo.content}
+              </Typography>
+              <Box className={"btn-group"}>
+                <Button
+                  size={"small"}
+                  onClick={(e) => {
+                    setViewPostModalData(popupInfo);
+                    setViewPostOpen(true);
+                  }}
                 >
-                  {popupInfo.title}
-                </Typography>
-                <Typography
-                  id="modal-description"
-                  sx={{ whiteSpace: "pre-line" }}
-                >
-                  {popupInfo.content}
-                </Typography>
-                <Box className={"btn-group"}>
-                  <Button
-                    size={"small"}
-                    onClick={(e) => {
-                      setViewPostModalData(popupInfo);
-                      setViewPostOpen(true);
-                    }}
-                  >
-                    Read more
-                  </Button>
-                </Box>
-              </PreviewPopup>
-            )}
-          </Map>
-        </MapContainer>
-      </FlexContainer>
+                  Read more
+                </Button>
+              </Box>
+            </PreviewPopup>
+          )}
+        </Map>
+      </MapContainer>
+      {/*</FlexContainer>*/}
     </ErrorBoundary>
   );
 };

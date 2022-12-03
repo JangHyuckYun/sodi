@@ -34,6 +34,12 @@ export class BoardRepository extends Repository<Board> {
     return await this.save(board);
   }
 
+  async findById(boardId: number): Promise<any> {
+    return await this.findOne({
+      where: { id: boardId },
+    });
+  }
+
   // async findByEmail(username: string) {
   //   return await this.findOne({
   //     where: { email: username },

@@ -24,9 +24,22 @@ export class BoardController {
 
   @UseGuards(JwtAuthGuard)
   @Post('list/all')
-  async allBoardList(@Req() req): Promise<Board[]> {
-    const result = this.boardService.findAll();
-    console.log('findAll', result, req);
+  async allBoardList(@Req() req): Promise<Array<any>> {
+    const result = (await this.boardService.findAll()).map((board) => {
+      const boardResult = Object.keys(board).reduce(
+        (acc, key) => {
+          if (key.includes('image')) {
+            if (board[key]?.length > 0) acc.images.push(board[key]);
+          } else {
+            acc[key] = board[key];
+          }
+          return acc;
+        },
+        { images: [] },
+      );
+      return boardResult;
+    });
+
     return result;
   }
 
@@ -44,7 +57,9 @@ export class BoardController {
     @Body() createBoardDto: CreateBoardDto,
     @Req() req,
   ) {
-    createBoardDto.userId = req?.user?.id;
+    console.log();
+    console.log('req?.user?.id', req?.user?.sub);
+    createBoardDto.userId = Number(req?.user?.sub ?? -1);
 
     const result = files.map((file) => {
       // const path = file.path.replace(this.config.get('ATTACH_SAVE_PATH'), '');

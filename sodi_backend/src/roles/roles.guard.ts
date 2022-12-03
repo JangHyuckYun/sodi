@@ -27,7 +27,7 @@ export class RolesGuard implements CanActivate {
 
     if (headers.authorization?.startsWith('Bearer ')) {
       const token = headers.authorization.substring(7);
-      const verified = await this.authService.verifyToken(token);
+      const verified = await this.authService.verify(token);
       const user: User = await this.userService.findById(verified.id);
       console.log('canActivate -> ', token, verified, user);
       return requireRoles.some((role) => JSON.parse(user.role)?.includes(role));

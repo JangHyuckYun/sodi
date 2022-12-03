@@ -20,7 +20,7 @@ export class BoardService {
   }
 
   async findAll(): Promise<Board[]> {
-    return this.boardRepository.find();
+    return await this.boardRepository.find();
   }
 
   async findOne(boardIdx: number) {

@@ -8,14 +8,17 @@ import {
   Link,
   TextField,
   Typography,
-} from '@mui/material';
-import { CustomBothSidesContainer, CustomFlexContainer } from '../../utils/customTag';
-import styled from 'styled-components';
-import { motion } from 'framer-motion';
+} from "@mui/material";
+import {
+  CustomBothSidesContainer,
+  CustomFlexContainer,
+} from "../../utils/customTag";
+import styled from "styled-components";
+import { motion } from "framer-motion";
 import framerSetting from "../../utils/framerSetting";
-import {useState} from "react";
-import {useNavigate} from "react-router";
-import {sodiApi} from "../../utils/api";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { sodiApi } from "../../utils/api";
 const LoginBgContainer = styled(Container)`
   display: flex;
   align-items: center;
@@ -31,7 +34,7 @@ const BackBackground = styled.div`
   position: absolute;
   left: 0;
   top: 0;
-  background-image: url('../assets/images/airplane_bg3.jpg');
+  background-image: url("../assets/images/airplane_bg3.jpg");
   background-size: cover;
   background-repeat: no-repeat;
   filter: blur(0.9);
@@ -46,7 +49,7 @@ export const LoginContainer = () => {
   const loginProcess = async () => {
     let { message, statusCode } = await sodiApi.user.login(loginId, password);
 
-    if ([200,201].includes(statusCode)) {
+    if ([200, 201].includes(statusCode)) {
       alert(message);
 
       return navigate("/main/map");
@@ -56,21 +59,23 @@ export const LoginContainer = () => {
 
   return (
     <LoginBgContainer
-      sx={{ width: '100vw', height: '100%' }}
-      style={{ transition: { duration: 0.5 }}}
-      maxWidth={'lg'}
+      sx={{ width: "100vw", height: "100%" }}
+      style={{ transition: { duration: 0.5 } }}
+      maxWidth={"lg"}
       component={motion.div}
-      intial={{ opacity:0, position: 'absolute' }}
-      animate={{ opacity:1, position: 'relative' }}
-      exit={{opacity: 0, position: 'absolute'}}
+      intial={{ opacity: 0, position: "absolute" }}
+      animate={{ opacity: 1, position: "relative" }}
+      exit={{ opacity: 0, position: "absolute" }}
     >
       <BackBackground />
-      <CustomBothSidesContainer sx={{ width: '58%', top: '50%', transform: 'translateY(-50%)' }}>
-        <Box className={'box leftBox'}>
-          <img src={'../assets/images/airplane.png'} alt="" />
+      <CustomBothSidesContainer
+        sx={{ width: "58%", top: "50%", transform: "translateY(-50%)" }}
+      >
+        <Box className={"box leftBox"}>
+          <img src={"../assets/images/airplane.png"} alt="" />
         </Box>
-        <Box className={'box rightBox'}>
-          <Typography variant={'h4'}>Sign in</Typography>
+        <Box className={"box rightBox"}>
+          <Typography variant={"h4"}>Sign in</Typography>
           <Box>
             <TextField
               margin="normal"
@@ -100,7 +105,13 @@ export const LoginContainer = () => {
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
             />
-            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} onClick={() => loginProcess()}>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              onClick={() => loginProcess()}
+            >
               Sign In
             </Button>
             <Grid container>
@@ -110,7 +121,7 @@ export const LoginContainer = () => {
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="/auth/join" variant="body2">
                   {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>
