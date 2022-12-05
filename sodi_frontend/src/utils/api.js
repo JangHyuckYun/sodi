@@ -173,9 +173,22 @@ export const sodiApi = {
     },
   },
   comment: {
-    createComment: async ({ boardId, comment }) => {
+    findAllByBoardId: async (boardId) => {
       return await accessClient
-          .post(`/comment/create`, { boardId, comment })
+          .post(`/comment/list/${boardId}`)
+          .then(e => {
+            console.log('commentList e', e);
+            return e;
+          })
+          .catch(e => {
+            console.log('commentList error', e);
+            return e;
+          })
+
+    },
+    createComment: async ({ boardId, content, replyName, replyId }) => {
+      return await accessClient
+          .post(`/comment/create`, { boardId, content, replyName, replyId })
           .then((e) => {
             console.log('e', e)
             return e;
