@@ -38,8 +38,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       throw new HttpException('Token 전송 안됨', HttpStatus.UNAUTHORIZED);
     }
 
+    console.log('authorization', authorization);
+
     const token = authorization.replace('Bearer ', '');
-    console.log('token', token);
 
     request.user = this.validateToken(token);
     return true;
@@ -48,12 +49,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   validateToken(token: string) {
     const secretKey = process.env.JWT_SECRET ? process.env.JWT_SECRET : 'dev';
 
-    console.log('secretKey', secretKey);
     try {
       const verify = this.jwtService.verify(token, { secret: secretKey });
       // throw new HttpException('INVALID_TOKEN', 401);
+      console.log('verify', verify);
       return verify;
     } catch (e) {
+      console.log('error....', e);
       switch (e.message) {
         // 토큰에 대한 오류를 판단합니다.
         case 'INVALID_TOKEN':

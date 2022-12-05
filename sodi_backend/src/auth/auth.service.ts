@@ -31,6 +31,7 @@ export class AuthService {
     // const payload = Object.assign({}, Payload(user.email, user.name));
     const payload: Payload = {
       email: user.email,
+      name: user.name,
       sub: user.id,
     };
 
