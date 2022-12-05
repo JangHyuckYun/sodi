@@ -11,10 +11,9 @@ export class BoardService {
     createBoardDto: CreateBoardDto,
     files: Array<Express.Multer.File>,
   ) {
-    files.forEach((file, idx) => {
-      console.log(`files[${idx}].filename`, files[idx].filename);
-      createBoardDto[`image${idx + 1}`] = files[idx].filename;
-    });
+    createBoardDto.images = JSON.stringify(
+      files?.map((file, idx) => files[idx].filename),
+    );
 
     return this.boardRepository.createBoard(createBoardDto);
   }

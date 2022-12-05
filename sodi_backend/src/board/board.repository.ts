@@ -7,29 +7,7 @@ import { CreateBoardDto } from './dto/board.create.dto';
 export class BoardRepository extends Repository<Board> {
   /** board Table -> 유저 생성  */
   async createBoard(createBoardDto: CreateBoardDto): Promise<any> {
-    const newObj = {};
-
-    console.log('beforeData: ', createBoardDto);
-
-    Object.keys(createBoardDto).forEach((key, idx) => {
-      if (key !== 'images') {
-        newObj[key] = createBoardDto[key];
-      } else {
-        createBoardDto[key].forEach((img, imgIdx) => {
-          newObj[`image${imgIdx + 1}`] = img;
-        });
-        const minusArrLen = 5 - createBoardDto[key].length;
-        Array(minusArrLen)
-          .fill(0)
-          .forEach((d, dIdx) => {
-            newObj[`image${dIdx + minusArrLen}`] = '';
-          });
-      }
-    });
-
-    console.log('createBoard newObj', newObj);
-
-    const board = this.create(newObj);
+    const board = this.create({ ...createBoardDto });
 
     return await this.save(board);
   }

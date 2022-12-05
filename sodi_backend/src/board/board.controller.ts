@@ -62,11 +62,8 @@ export class BoardController {
     createBoardDto.userId = Number(req?.user?.sub ?? -1);
 
     const result = files.map((file) => {
-      // const path = file.path.replace(this.config.get('ATTACH_SAVE_PATH'), '');
-      console.log('file', file);
       return {
         filesName: file.originalname,
-        // savedPath: path.replace(/\\/gi, '/'),
         size: file.size,
       };
     });

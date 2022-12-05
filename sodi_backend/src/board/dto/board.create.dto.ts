@@ -63,4 +63,11 @@ export class CreateBoardDto {
     default: 0,
   })
   latitude = 0;
+
+  @ApiProperty({
+    type: String,
+    description: '게시글 이미지들',
+    default: [],
+  })
+  images = '[]';
 }

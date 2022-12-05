@@ -43,46 +43,14 @@ export class Board {
   latitude: number;
 
   @Column({
-    name: 'board_image_1',
+    name: 'board_images',
     nullable: false,
-    comment: '게시글의 이미지 1',
+    comment: '게시글의 이미지 모음',
     // type: 'longblob',
-    default: '',
+    default: '[]',
   })
-  image1: string;
+  images: string;
 
-  @Column({
-    name: 'board_image_2',
-    comment: '게시글의 이미지 2 ',
-    // type: 'longblob',
-    default: '',
-  })
-  image2: string;
-
-  @Column({
-    name: 'board_image_3',
-    comment: '게시글의 이미지 3 ',
-    // type: 'longblob',
-    default: '',
-  })
-  image3: string;
-
-  @Column({
-    name: 'board_image_4',
-    comment: '게시글의 이미지 4 ',
-    // type: 'longblob',
-    default: '',
-  })
-  image4: string;
-
-  @Column({
-    name: 'board_image_5',
-    comment: '게시글의 이미지 5 ',
-    // type: 'longblob',
-    default: '',
-  })
-  image5: string;
-
-  @OneToMany(() => Comment, (comment) => comment.id)
-  commentList: Comment[];
+  @OneToMany(() => Comment, (comment) => comment.board, { lazy: true })
+  comments: Comment[];
 }
