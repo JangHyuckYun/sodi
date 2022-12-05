@@ -9,10 +9,26 @@ export class CreateCommentDto {
   @IsNotEmpty({ message: 'boardId|' + messages.empty.boardId })
   boardId: number;
 
-  board: Board;
+  board?: Board;
 
   @ApiProperty({ type: Number, description: '유저 아이디', default: 1 })
-  userId: number;
+  userId?: number;
+
+  @ApiProperty({
+    type: String,
+    description: '상위 댓글 작성자 이름',
+    default: '',
+  })
+  replyName: '';
+
+  @ApiProperty({
+    type: Number,
+    description: '상위 댓글 작성자 댓글 idx',
+  })
+  replyId?;
+
+  @ApiProperty({ type: String, description: '유저 이름', default: '' })
+  writer?: string;
 
   @ApiProperty({
     type: String,
@@ -20,5 +36,5 @@ export class CreateCommentDto {
     default: 'asfafsafsa',
   })
   @IsNotEmpty({ message: '이름|' + messages.empty.comment })
-  comment: string;
+  content: string;
 }
