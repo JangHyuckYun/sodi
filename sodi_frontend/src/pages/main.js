@@ -315,7 +315,7 @@ export const Main = () => {
                   className={"marker"}
                   onClick={(e) => {
                     e.originalEvent.stopPropagation();
-                    console.log("click", post.title, post.content);
+                    post.images = JSON.parse(post.images);
                     setPopupInfo(post);
                   }}
                 />
@@ -346,6 +346,7 @@ export const Main = () => {
                   size={"small"}
                   onClick={(e) => {
                     setViewPostModalData(popupInfo);
+                    console.log('post', popupInfo)
                     setViewPostOpen(true);
                   }}
                 >
