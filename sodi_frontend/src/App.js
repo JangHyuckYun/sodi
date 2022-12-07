@@ -8,7 +8,7 @@ import AnimatedRoutes from "./components/animatedRoutes";
 function App() {
   const [myTheme, setTheme] = useState(defaultTheme);
   const [mode, setMode] = useState("light");
-
+    console.log('process.env.PUBLIC_URL', process.env.PUBLIC_URL)
   return (
     <ThemeProvider theme={myTheme}>
       <GlobalStyles
@@ -59,7 +59,7 @@ function App() {
         }}
       />
       <CssBaseline enableColorScheme={true} />
-      <Router>
+      <Router basename={"/"}>
         {/*<nav style={{ position: 'fixed', zIndex: 9999 }}>*/}
         {/*  <NavLink to="/" end>*/}
         {/*    Home*/}

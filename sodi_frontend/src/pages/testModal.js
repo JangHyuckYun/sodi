@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import {useOutletContext} from "react-router";
 const testDiv = styled.div`
     position: absolute;
     width: 100px;
@@ -8,10 +9,11 @@ const testDiv = styled.div`
   `;
 
 export const TestModal = () => {
-  console.log("asfafaasfassf");
+  const { test } = useOutletContext();
+
   return (
-    <div style={{ position:'absolute', width:'100px', height:'100px' }}>
-      <p>124124</p>
+    <div style={{ position:'fixed', width:'100px', height:'100px', zIndex:1000 }}>
+      <p>test: {test}</p>
     </div>
   );
 };

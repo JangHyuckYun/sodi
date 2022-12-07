@@ -7,8 +7,10 @@ import { Main } from "../pages/main";
 import { TestModal } from "../pages/testModal";
 import { AuthRoute } from "../utils/AuthRoute";
 import { sodiApi } from "../utils/api";
-import {lazy, useCallback, useEffect} from "react";
-import {userCountryCodeState} from "../store/recoilStates";
+import { lazy, useCallback, useEffect } from "react";
+import { userCountryCodeState } from "../store/recoilStates";
+import { MainMapSearch } from "./main/mainMapSearch";
+import React from "react";
 
 function isLogin() {
   return !!localStorage.getItem("accessToken");
@@ -36,7 +38,6 @@ function AnimatedRoutes() {
   const background = location.state && location.state.background;
   console.log("background", background);
 
-
   return (
     <AnimatePresence>
       <Routes location={location} key={location.pathname}>
@@ -49,9 +50,9 @@ function AnimatedRoutes() {
         {/*/>*/}
         <Route path={"/auth/login"} element={<LoginContainer />} />
         <Route path={"/auth/join"} element={<JoinContainer />} />
-        <Route path={"/main"} element={verify(<Outlet />)}>
-          <Route path={"map"} element={verify(<Main />)} />
-          <Route path={"modal/:id"} element={verify(<TestModal />)} />
+        <Route path={"/main/map"} element={verify(<Main />)}>
+          <Route path={"search"} element={<MainMapSearch />} />
+          <Route path={"test"} element={<TestModal />} />
         </Route>
         {/* 메인페이지 ( 인기게시물 표시 ) */}
         {/* 지도 표시 ( 각 나라의 게시물 간략하게 표시 ) */}

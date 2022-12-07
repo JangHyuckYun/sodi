@@ -26,7 +26,7 @@ import {
   useConfirmAddress,
 } from "@mapbox/search-js-react";
 import { GeoJsonLayer, DeckGL } from "deck.gl";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import {
   Box,
   Button,
@@ -42,7 +42,7 @@ import { MainMapSearch } from "../components/main/mainMapSearch";
 import { MdPostAdd } from "react-icons/md";
 import ImageUploading from "react-images-uploading";
 import { encode } from "base64-arraybuffer";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { AddPostModal } from "../modal/addPostModal";
 import { ViewPostModal } from "../modal/viewPostModal";
 import { atom, useRecoilValue } from "recoil";
@@ -50,6 +50,7 @@ import { queryKeywordState } from "../store/recoilStates";
 import { queryKeywordSelector } from "../store/recoilSelector";
 import toast from "react-hot-toast";
 import { ReactComponent as CustomMarker } from "../assets/images/customMarker.svg";
+import { FaUser } from "react-icons/fa";
 // import 'maplibre-gl/dist/maplibre-gl.css';
 
 /* TODO
@@ -64,6 +65,59 @@ const transformRequest = (url, resourceType) => {
     };
   }
 };
+
+const SearchContainer = styled.div`
+  //display: none;
+  flex: 0.25;
+  position: fixed;
+  background: white;
+  width: 25%;
+  //height: calc(100% - 20px);
+  height: 100%;
+  max-height: calc(100% - 20px);
+  box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  padding: 15px;
+  border-radius: 12px;
+  left: 65px;
+  top: 10px;
+  //max-height: 0;
+  //transform: translateY(-50%);
+
+  .autoFillList {
+    .autoFillListItem {
+      transition: 0.2s;
+      &.selected {
+        background: rgba(0, 0, 0, 0.1);
+        margin-left: 12px;
+      }
+
+      &:not(:last-child) {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+
+  & .inputContainer {
+    //margin-bottom: 35px;
+
+    input {
+      border-radius: 12px;
+      height: 20px !important;
+    }
+  }
+
+  & .searchResults {
+    position: relative;
+    max-height: 100%;
+    overflow-y: auto;
+    transition: 0.2s;
+
+    & .searchResult {
+      margin-bottom: 10px;
+    }
+  }
+`;
 
 const FlexContainer = styled.div`
   display: flex;
@@ -142,6 +196,50 @@ const PreviewPopup = styled(Popup)`
     }
   }
 `;
+
+const MainNav = styled.nav`
+  position: fixed;
+  width: 45px;
+  height: auto;
+  min-height: 50%;
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: 12px;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+  z-index: 10;
+`;
+
+const MainNavLink = styled(Link)`
+  display: flex;
+  width: 100%;
+  height: 25px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+  border-radius: 7px;
+  transition: 0.2s;
+  ${({ bg }) => css`
+    background: ${bg};
+  `}
+
+  &.active {
+    transform: scale(1.17);
+  }
+
+  svg {
+    color: white;
+    padding-right: 1px;
+    font-size: 14px;
+  }
+`;
+
 // 126.86767, 37.500286
 export const Main = () => {
   useEffect(() => {
@@ -156,7 +254,7 @@ export const Main = () => {
           console.log("error", e);
         });
 
-      console.log('data', data)
+      console.log("data", data);
     })();
   }, []);
 
@@ -186,9 +284,11 @@ export const Main = () => {
   const [queryKeyword, setQueryKeyword] = useState("");
   const [viewPostOpen, setViewPostOpen] = useState(false);
   const [clickPos, setClickPos] = useState({ lng: 0, lat: 0 });
-  // const queryKeyword = useRecoilValue(queryKeywordState);
 
-  // const [usersAllDataList, setUsersAllDataList] = useState([]);
+  const { pathname } = useLocation();
+
+  console.log("pathname", pathname);
+
   const usersAllDataList_query = useQuery(
     ["userAllDataList"],
     () => sodiApi.board.findAll(),
@@ -196,9 +296,6 @@ export const Main = () => {
       onError: (err) => (error) => toast.error("asfsfafas"),
     }
   );
-
-  // console.log("usersAllDataList_query", usersAllDataList_query);
-
   let { data, response } = useQuery(
     ["searchResultList", queryKeyword],
     () => sodiApi.map.searchResultList(queryKeyword),
@@ -282,61 +379,6 @@ export const Main = () => {
     [data]
   );
 
-  const [testSearchValue, setTestSearchValue] = useState("");
-  const [showFormExpanded, setShowFormExpanded] = useState(false);
-  const [showMinimap, setShowMinimap] = useState(false);
-  const [feature, setFeature] = useState();
-  const [showValidationText, setShowValidationText] = useState(false);
-
-  const { formRef, showConfirm } = useConfirmAddress({
-    minimap: false,
-    skipConfirmModal: (feature) => {
-      ["exact", "high"].includes(feature.properties.match_code.confidence);
-    },
-    accessToken: publicKey,
-  });
-
-  function handleSaveMarkerLocation(coordinate) {
-    console.log(`Marker moved to ${JSON.stringify(coordinate)}.`);
-  }
-
-  const handleSubmit = useCallback(
-    async (e) => {
-      e.preventDefault();
-      console.log("submit....");
-      const result = await showConfirm();
-      if (result.type === "nochange") submitForm();
-    },
-    [showConfirm]
-  );
-
-  function submitForm() {
-    setShowValidationText(true);
-    setTimeout(() => {
-      resetForm();
-    }, 2500);
-  }
-
-  function resetForm() {
-    const inputs = document.querySelectorAll("input");
-    inputs.forEach((input) => (input.value = ""));
-    setShowFormExpanded(false);
-    setShowValidationText(false);
-    setFeature(null);
-  }
-
-  const handleRetrieve = useCallback(
-    (res) => {
-      console.log("res", res);
-      const feature = res.features[0];
-      console.log("feature", feature);
-      setFeature(feature);
-      setShowMinimap(true);
-      setShowFormExpanded(true);
-    },
-    [setFeature, setShowMinimap]
-  );
-
   return (
     <ErrorBoundary
       fallback={
@@ -345,6 +387,32 @@ export const Main = () => {
         </div>
       }
     >
+      <MainNav>
+        <MainNavLink href={"/main/map/test"} bg={"#5592f8"} className={"active"}>
+          <FaUser />
+        </MainNavLink>
+
+        <MainNavLink to={"/main/map/search"} bg={"#fc5d5a"}>
+          <FaUser />
+        </MainNavLink>
+      </MainNav>
+
+      {pathname !== "/main/map" && (
+        <SearchContainer>
+          <Outlet
+            context={{
+              mainSearch: {
+                searchList: data?.features,
+                goTothePlace: goTothePlace,
+                viewAddPostModal: handleOpen,
+                setQueryKeyword: setQueryKeyword,
+                clickPos: clickPos,
+              },
+            }}
+          />
+        </SearchContainer>
+      )}
+
       <AddPostModal
         addPostModalData={addPostModalData}
         open={open}
@@ -356,65 +424,13 @@ export const Main = () => {
         handleClose={viewPostHandleClose}
       />
       {/*<Link style={{ position:'absolute', zIndex:1111 }} to={"/main/modal/1"}>GOGOGO</Link>*/}
-      <AddPostButton
-        color={"primary"}
-        onClick={() => handleOpen(initialAddPostModalData)}
-      >
-        <MdPostAdd />
-      </AddPostButton>
-      {/*<FlexContainer>*/}
-      <MainMapSearch
-        searchList={data?.features}
-        goTothePlace={goTothePlace}
-        viewAddPostModal={handleOpen}
-        setQueryKeyword={setQueryKeyword}
-        clickPos={clickPos}
-      />
-
-      {/*<SearchBox*/}
-      {/*    className={"test"}*/}
-      {/*    accessToken={*/}
-      {/*      "pk.eyJ1Ijoic2VhcmNoLW1hY2hpbmUtdXNlci0xIiwiYSI6ImNrNnJ6bDdzdzA5cnAza3F4aTVwcWxqdWEifQ.RFF7CVFKrUsZVrJsFzhRvQ"*/}
-      {/*    }*/}
-      {/*    proximity="0,0"*/}
-      {/*    map={map}*/}
-      {/*    value={testSearchValue}*/}
-      {/*    onChange={(e) => setTestSearchValue(e)}*/}
-      {/*    onSuggest={(e) => { // 검색 결과만*/}
-      {/*      console.log("sugject", e);*/}
-      {/*    }}*/}
-      {/*    onRetrieve={handleRetrieve}*/}
-      {/*/>*/}
-
-      {/*<form*/}
-      {/*  ref={formRef}*/}
-      {/*  className={"flex flex--column"}*/}
-      {/*  onSubmit={handleSubmit}*/}
+      {/*<AddPostButton*/}
+      {/*  color={"primary"}*/}
+      {/*  onClick={() => handleOpen(initialAddPostModalData)}*/}
       {/*>*/}
-      {/*  <AddressAutofill*/}
-      {/*    browserAutofillEnabled={true}*/}
-      {/*    accessToken={publicKey}*/}
-      {/*    on*/}
-      {/*    onRetrieve={handleRetrieve}*/}
-      {/*  >*/}
-      {/*    <input*/}
-      {/*      autoComplete="shipping address-line1"*/}
-      {/*      value={testSearchValue}*/}
-      {/*      onChange={(e) => setTestSearchValue(e.target.value)}*/}
-      {/*    />*/}
-      {/*  </AddressAutofill>*/}
-      {/*  <AddressMinimap*/}
-      {/*    accessToken={publicKey}*/}
-      {/*    canAdjustMarker={true}*/}
-      {/*    satelliteToggle={true}*/}
-      {/*    feature={feature}*/}
-      {/*    show={showMinimap}*/}
-      {/*    onSaveMarkerLocation={handleSaveMarkerLocation}*/}
-      {/*  />*/}
-      {/*  <Button color={"primary"} type={"submit"}>*/}
-      {/*    submit*/}
-      {/*  </Button>*/}
-      {/*</form>*/}
+      {/*  <MdPostAdd />*/}
+      {/*</AddPostButton>*/}
+      {/*<FlexContainer>*/}
       <MapContainer>
         <Map
           ref={mapRef}
