@@ -53,6 +53,9 @@ function App() {
             "border-bottom-right-radius": "14px",
             "border-top-right-radius": "14px",
           },
+            ".MuiButton-containedPrimary": {
+              color: 'white !important'
+            }
         }}
       />
       <CssBaseline enableColorScheme={true} />

@@ -29,6 +29,7 @@ export class CommentService {
         comments: {
           groupNum: 'ASC',
           order: 'ASC',
+          depth: 'ASC',
         },
       },
     });

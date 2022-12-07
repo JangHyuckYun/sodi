@@ -3,6 +3,7 @@ import { User } from './user.entity';
 import { CreateUserDto } from './dto/user.create.dto';
 import { UserRepository } from './user.repository';
 import * as bcrypt from 'bcryptjs/dist/bcrypt';
+import { UserDuplicateRequestDto } from './dto/user.duplicate.request.dto';
 
 @Injectable()
 export class UserService {
@@ -49,5 +50,19 @@ export class UserService {
 
   async findById(id: number) {
     return this.userRepository.findById(id);
+  }
+
+  async duplicate(
+    userDuplicateReqDto: UserDuplicateRequestDto,
+  ): Promise<boolean> {
+    const { type, value } = userDuplicateReqDto;
+
+    return await this.userRepository
+      .findOneBy({ [type]: value })
+      .then((e) => {
+        console.log(e);
+        return e !== null;
+      })
+      .catch((e) => false);
   }
 }

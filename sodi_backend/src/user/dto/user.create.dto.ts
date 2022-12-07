@@ -7,7 +7,7 @@ const messages = errorMessages.kr.createUser;
 
 export class CreateUserDto {
   @ApiProperty({ type: String, description: '유저 이름', default: 'jangHyuck' })
-  @IsNotEmpty({ message: '이름|' + messages.empty.name })
+  @IsNotEmpty({ message: 'name|' + messages.empty.name })
   name: string;
 
   @ApiProperty({
@@ -15,8 +15,8 @@ export class CreateUserDto {
     description: '유저 이메일',
     default: 'skg09203@naver.com',
   })
-  @IsNotEmpty({ message: '이메일|' + messages.empty.email })
-  @IsEmail({}, { message: '이메일|' + messages.matches.email })
+  @IsNotEmpty({ message: 'email|' + messages.empty.email })
+  @IsEmail({}, { message: 'email|' + messages.matches.email })
   email: string;
 
   @ApiProperty({
@@ -25,16 +25,20 @@ export class CreateUserDto {
     default: 'asd123!',
   })
   @Matches(/^(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/, {
-    message: '비밀번호|' + messages.matches.password,
+    message: 'password|' + messages.matches.password,
   })
-  @IsNotEmpty({ message: '비밀번호|' + messages.empty.password })
+  @IsNotEmpty({ message: 'password|' + messages.empty.password })
   password: string;
 
+  @IsNotEmpty({ message: 'passwordCheck|' + messages.empty.password })
+  passwordCheck?: string;
+
   @ApiProperty({ type: Number, description: '유저 나이', default: 1 })
+  @IsNotEmpty({ message: 'age|' + messages.empty.age })
   age: number;
 
   @ApiProperty({ type: String, description: '유저의 나라', default: 'Korea' })
-  @IsNotEmpty({ message: '나라|' + messages.empty.country })
+  @IsNotEmpty({ message: 'country|' + messages.empty.country })
   country: string;
 
   @ApiProperty({
@@ -42,8 +46,8 @@ export class CreateUserDto {
     description: '유저 권한',
     default: '["User"]',
   })
-  role: string;
+  role?: string;
 
   @ApiProperty({ type: Boolean, description: '유저 계정 활성화 여부' })
-  isActivate: boolean;
+  isActivate?: boolean;
 }

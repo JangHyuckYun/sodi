@@ -51,6 +51,9 @@ export class Board {
   })
   images: string;
 
-  @OneToMany(() => Comment, (comment) => comment.board, { lazy: true })
+  @OneToMany(() => Comment, (comment) => comment.board, {
+    lazy: true,
+    cascade: true,
+  })
   comments: Comment[];
 }

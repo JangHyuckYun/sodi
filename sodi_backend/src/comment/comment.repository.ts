@@ -41,11 +41,25 @@ export class CommentRepository extends Repository<Comment> {
         })
         .orderBy('comment.order DESC');
 
+      const updateTest = await this.createQueryBuilder()
+        .update(Comment)
+        .set({
+          order: () => 'comment_order + 1',
+        })
+        .where('groupNum = :groupNum AND id != :id AND order > :order', {
+          groupNum: replyComment.groupNum,
+          id: Number(replyComment.id),
+          order: replyComment.order,
+        })
+        .execute();
+
+      console.log('updateTest', updateTest);
+
       console.log('lastOrderComment', lastOrderComment);
 
       comment.depth = replyComment.depth + 1;
       comment.groupNum = replyComment.groupNum;
-      comment.order = lastOrderComment[0].order + 1;
+      comment.order = replyComment.order + 1;
     } else {
       const lastGroupComment = await this.find({
         order: {

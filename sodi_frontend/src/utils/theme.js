@@ -16,7 +16,7 @@ const defaultTheme = createTheme({
   },
   background: {
     color: {
-      main: '#A8E0FF',
+      main: '#839bc0',
       // main: 'rgba(188, 209, 220,1)',
       sub: '',
     },
@@ -24,8 +24,8 @@ const defaultTheme = createTheme({
   palette: {
     primary: {
       light: blue[300],
-      main: blue[500],
-      dark: blue[700],
+      main: "#839bc0",
+      dark: "rgb(118,146,175)",
     },
   },
 });

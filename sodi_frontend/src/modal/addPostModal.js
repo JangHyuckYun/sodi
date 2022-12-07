@@ -16,7 +16,7 @@ import { modalDefaultstyle } from "./modalDefault";
 
 export const AddPostModal = React.memo(
   ({ addPostModalData, open, handleClose }) => {
-    const { coordinates, bbox, id, place_name, text, type } = addPostModalData;
+    const { coordinates, bbox, id, place_name } = addPostModalData;
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [country, setCountry] = useState(place_name);

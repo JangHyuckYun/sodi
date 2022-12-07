@@ -38,6 +38,7 @@ export class User {
     name: 'user_role',
     nullable: false,
     comment: '유저 권한',
+    default: '["User"]',
   })
   role: string;
 

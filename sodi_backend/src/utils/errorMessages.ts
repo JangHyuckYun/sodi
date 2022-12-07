@@ -6,6 +6,7 @@ export const errorMessages = {
         email: '이메일을 입력해 주세요.',
         password: '비밀번호를 입력해 주세요.',
         country: '도시를 입력해 주세요.',
+        age: '나이를 입력해 주세요.',
       },
       matches: {
         password:

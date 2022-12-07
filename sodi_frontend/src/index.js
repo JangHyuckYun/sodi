@@ -1,11 +1,12 @@
-import React, { Suspense } from "react";
+import React, {Suspense, useEffect} from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import {QueryCache, QueryClient, QueryClientProvider} from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
-import { RecoilRoot } from "recoil";
+import {RecoilRoot, useSetRecoilState} from "recoil";
 import toast from "react-hot-toast";
+import {userCountryCodeState} from "./store/recoilStates";
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({

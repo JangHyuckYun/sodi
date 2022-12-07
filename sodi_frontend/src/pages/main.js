@@ -11,11 +11,20 @@ import {
   Layer,
   Map,
   Marker,
+  NavigationControl,
   Popup,
   Source,
   useMap,
 } from "react-map-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
+// import "mapbox-gl/dist/mapbox-gl.css";
+import "../assets/css/mapbox-gl2.css";
+
+import {
+  AddressAutofill,
+  SearchBox,
+  AddressMinimap,
+  useConfirmAddress,
+} from "@mapbox/search-js-react";
 import { GeoJsonLayer, DeckGL } from "deck.gl";
 import styled from "styled-components";
 import {
@@ -26,7 +35,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { publicKey, sodiApi } from "../utils/api";
+import { publicKey, secretKey, sodiApi } from "../utils/api";
 import { useQuery } from "react-query";
 import { ErrorBoundary } from "react-error-boundary";
 import { MainMapSearch } from "../components/main/mainMapSearch";
@@ -78,9 +87,11 @@ const MapContainer = styled.div`
         fill: url("#image");
       }
     }
+
     .markerMain {
       max-width: 50px;
     }
+
     .markerInImage {
       width: 50px;
     }
@@ -100,6 +111,7 @@ const AddPostButton = styled(Button)`
 
 const PreviewPopup = styled(Popup)`
   width: 100%;
+
   .mapboxgl-popup-content {
     h6 {
       margin-bottom: 5px;
@@ -122,6 +134,7 @@ const PreviewPopup = styled(Popup)`
       button {
       }
     }
+
     .mapboxgl-popup-close-button {
       width: 26px;
       height: 22px;
@@ -129,8 +142,24 @@ const PreviewPopup = styled(Popup)`
     }
   }
 `;
-
+// 126.86767, 37.500286
 export const Main = () => {
+  useEffect(() => {
+    (async () => {
+      let url = `https://api.mapbox.com/geocoding/v5/mapbox.places/dongyang.json?limit=5&language=en&access_token=${publicKey}`;
+      let data = await fetch(url)
+        .then((e) => {
+          console.log("e", e);
+          return e.json();
+        })
+        .catch((e) => {
+          console.log("error", e);
+        });
+
+      console.log('data', data)
+    })();
+  }, []);
+
   // return <Map mapLib={maplibregl} />;
   // 원하는 포크 사용 시 사용
   const initialAddPostModalData = {
@@ -168,7 +197,7 @@ export const Main = () => {
     }
   );
 
-  console.log("usersAllDataList_query", usersAllDataList_query);
+  // console.log("usersAllDataList_query", usersAllDataList_query);
 
   let { data, response } = useQuery(
     ["searchResultList", queryKeyword],
@@ -218,7 +247,6 @@ export const Main = () => {
   }, []);
 
   const viewPostHandleClose = useCallback(() => {
-    console.log("close");
     setViewPostOpen(false);
   }, []);
 
@@ -226,12 +254,11 @@ export const Main = () => {
     if (ref) {
       // Activate as soon as the control is loaded
       ref.trigger();
-      console.log("safasfsaf");
     }
   }, []);
 
   const mapRef = useRef();
-  // const map = useMap();
+  const { current: map } = useMap();
 
   const goTothePlace = useCallback(
     ({
@@ -239,9 +266,12 @@ export const Main = () => {
         dataset: { id },
       },
     }) => {
-      let findIndex = data?.features?.findIndex((d) => d.id === id);
+      let findIndex = data?.features?.findIndex((d) => {
+        return d.id === id;
+      });
       if (findIndex > -1) {
         let [left, top] = data.features[findIndex].center;
+
         setViewState({
           zoom: 10,
           longitude: left,
@@ -250,6 +280,61 @@ export const Main = () => {
       }
     },
     [data]
+  );
+
+  const [testSearchValue, setTestSearchValue] = useState("");
+  const [showFormExpanded, setShowFormExpanded] = useState(false);
+  const [showMinimap, setShowMinimap] = useState(false);
+  const [feature, setFeature] = useState();
+  const [showValidationText, setShowValidationText] = useState(false);
+
+  const { formRef, showConfirm } = useConfirmAddress({
+    minimap: false,
+    skipConfirmModal: (feature) => {
+      ["exact", "high"].includes(feature.properties.match_code.confidence);
+    },
+    accessToken: publicKey,
+  });
+
+  function handleSaveMarkerLocation(coordinate) {
+    console.log(`Marker moved to ${JSON.stringify(coordinate)}.`);
+  }
+
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      console.log("submit....");
+      const result = await showConfirm();
+      if (result.type === "nochange") submitForm();
+    },
+    [showConfirm]
+  );
+
+  function submitForm() {
+    setShowValidationText(true);
+    setTimeout(() => {
+      resetForm();
+    }, 2500);
+  }
+
+  function resetForm() {
+    const inputs = document.querySelectorAll("input");
+    inputs.forEach((input) => (input.value = ""));
+    setShowFormExpanded(false);
+    setShowValidationText(false);
+    setFeature(null);
+  }
+
+  const handleRetrieve = useCallback(
+    (res) => {
+      console.log("res", res);
+      const feature = res.features[0];
+      console.log("feature", feature);
+      setFeature(feature);
+      setShowMinimap(true);
+      setShowFormExpanded(true);
+    },
+    [setFeature, setShowMinimap]
   );
 
   return (
@@ -285,18 +370,70 @@ export const Main = () => {
         setQueryKeyword={setQueryKeyword}
         clickPos={clickPos}
       />
+
+      {/*<SearchBox*/}
+      {/*    className={"test"}*/}
+      {/*    accessToken={*/}
+      {/*      "pk.eyJ1Ijoic2VhcmNoLW1hY2hpbmUtdXNlci0xIiwiYSI6ImNrNnJ6bDdzdzA5cnAza3F4aTVwcWxqdWEifQ.RFF7CVFKrUsZVrJsFzhRvQ"*/}
+      {/*    }*/}
+      {/*    proximity="0,0"*/}
+      {/*    map={map}*/}
+      {/*    value={testSearchValue}*/}
+      {/*    onChange={(e) => setTestSearchValue(e)}*/}
+      {/*    onSuggest={(e) => { // 검색 결과만*/}
+      {/*      console.log("sugject", e);*/}
+      {/*    }}*/}
+      {/*    onRetrieve={handleRetrieve}*/}
+      {/*/>*/}
+
+      {/*<form*/}
+      {/*  ref={formRef}*/}
+      {/*  className={"flex flex--column"}*/}
+      {/*  onSubmit={handleSubmit}*/}
+      {/*>*/}
+      {/*  <AddressAutofill*/}
+      {/*    browserAutofillEnabled={true}*/}
+      {/*    accessToken={publicKey}*/}
+      {/*    on*/}
+      {/*    onRetrieve={handleRetrieve}*/}
+      {/*  >*/}
+      {/*    <input*/}
+      {/*      autoComplete="shipping address-line1"*/}
+      {/*      value={testSearchValue}*/}
+      {/*      onChange={(e) => setTestSearchValue(e.target.value)}*/}
+      {/*    />*/}
+      {/*  </AddressAutofill>*/}
+      {/*  <AddressMinimap*/}
+      {/*    accessToken={publicKey}*/}
+      {/*    canAdjustMarker={true}*/}
+      {/*    satelliteToggle={true}*/}
+      {/*    feature={feature}*/}
+      {/*    show={showMinimap}*/}
+      {/*    onSaveMarkerLocation={handleSaveMarkerLocation}*/}
+      {/*  />*/}
+      {/*  <Button color={"primary"} type={"submit"}>*/}
+      {/*    submit*/}
+      {/*  </Button>*/}
+      {/*</form>*/}
       <MapContainer>
         <Map
           ref={mapRef}
           {...viewState}
           onMove={(evt) => setViewState(evt.viewState)}
-          onClick={(evt) => setClickPos(evt.lngLat)}
+          onClick={(evt) => {
+            console.log("asfsasfasaf", evt);
+            setClickPos(evt.lngLat);
+          }}
           onViewPortChange={setViewState}
           mapboxAccessToken={publicKey}
           // style={{ width: window.innerWidth, height: window.innerHeight }}
+          // mapStyle="mapbox://styles/janghyuck/clbd6e5dl000d15nmhpjqkvzt"
+          // mapStyle="mapbox://styles/janghyuck/clbd74ec2000c15qdxhrwc2qn"
           mapStyle="mapbox://styles/janghyuck/claib2r2b000115nv6hdl2oct"
+          terrain={{ source: "mapbox-dem", exaggeration: 1.5 }}
         >
           <GeolocateControl ref={mapRef} />
+          <NavigationControl />
 
           <Suspense fallback={<h1>Loading... </h1>}>
             <Source id={"my-Data"} type={"geojson"} data={data}>
@@ -346,7 +483,7 @@ export const Main = () => {
                   size={"small"}
                   onClick={(e) => {
                     setViewPostModalData(popupInfo);
-                    console.log('post', popupInfo)
+                    console.log("post", popupInfo);
                     setViewPostOpen(true);
                   }}
                 >

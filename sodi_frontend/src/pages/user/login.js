@@ -16,7 +16,7 @@ import {
 import styled from "styled-components";
 import { motion } from "framer-motion";
 import framerSetting from "../../utils/framerSetting";
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import { sodiApi } from "../../utils/api";
 const LoginBgContainer = styled(Container)`
@@ -24,8 +24,35 @@ const LoginBgContainer = styled(Container)`
   align-items: center;
   justify-content: center;
   max-width: 100% !important;
-  filter: grayscale(0.7);
+  overflow: hidden;
+  //filter: grayscale(0.7);
   opacity: 0;
+  
+  video {
+    position: absolute;
+    left: 0;
+    bottom:0;
+    width: 100%;
+    height: 100%;
+    transform: scale(1.2);
+  }
+  
+  .modalContainer {
+    padding: 20px !important;
+    
+    .leftBox {
+      border-radius: 12px !important;
+      overflow: hidden;
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    
+    .rightBox {
+      padding: 0 0 0 20px !important;
+    }
+  }
 `;
 
 const BackBackground = styled.div`
@@ -34,24 +61,26 @@ const BackBackground = styled.div`
   position: absolute;
   left: 0;
   top: 0;
-  background-image: url("../assets/images/airplane_bg3.jpg");
+  background-image: url("../assets/images/plane-flight.gif");
   background-size: cover;
   background-repeat: no-repeat;
-  filter: blur(0.9);
+  filter: blur(1) grayscale(.7);
 `;
 
 export const LoginContainer = () => {
+  let navigate = useNavigate();
   let [loginId, setLoginId] = useState("");
   let [password, setPassword] = useState("");
 
-  let navigate = useNavigate();
+  useEffect(() => {
+    console.log(loginId,  password)
+  }, []);
 
   const loginProcess = async () => {
     let { message, statusCode } = await sodiApi.user.login(loginId, password);
 
     if ([200, 201].includes(statusCode)) {
       alert(message);
-
       return navigate("/main/map");
     }
     return alert(message);
@@ -67,12 +96,17 @@ export const LoginContainer = () => {
       animate={{ opacity: 1, position: "relative" }}
       exit={{ opacity: 0, position: "absolute" }}
     >
-      <BackBackground />
+      {/*<BackBackground />*/}
+      <video muted={true} autoPlay={true} loop={true}>
+        {/*<source src={"../assets/videos/coverr-view-from-airplane-window-3707-1080p.mp4"} type={'video/mp4'} />*/}
+        <source src={"../assets/videos/vid3.mp4"} type={'video/mp4'} />
+      </video>
       <CustomBothSidesContainer
-        sx={{ width: "58%", top: "50%", transform: "translateY(-50%)" }}
+          className={'modalContainer'}
+        sx={{ width: "58%", height:'50%', p:2, top: "50%", transform: "translateY(-50%)" }}
       >
         <Box className={"box leftBox"}>
-          <img src={"../assets/images/airplane.png"} alt="" />
+          <img src={"../assets/images/gif_1.gif"} alt="" />
         </Box>
         <Box className={"box rightBox"}>
           <Typography variant={"h4"}>Sign in</Typography>

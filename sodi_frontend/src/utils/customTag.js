@@ -10,6 +10,7 @@ export const CustomBothSidesContainer = styled(Container)`
   justify-content: space-between;
   background: white;
   min-height: 50%;
+  max-height: 84%;
   height: auto;
   padding: 0 !important;
 
@@ -18,12 +19,13 @@ export const CustomBothSidesContainer = styled(Container)`
     box-shadow: 0px 1px 7px rgba(0,0,0, .15);
     & > .MuiBox-root {
       flex: 1;
-      &:nth-child(1) {
+      &.leftBox {
         background: ${background.color.main};
         position: relative;
+        box-shadow: 0 0 9px rgba(0,0,0, 0.5);
         img {
-          width: 85%;
-          height: 85%;
+          width: 100%;
+          height: 100%;
           position: absolute;
           right: 0;
           bottom: 0;
@@ -31,13 +33,23 @@ export const CustomBothSidesContainer = styled(Container)`
         }
       }
 
-      &:nth-child(2) {
+      &.rightBox {
         box-sizing: border-box;
-        padding: 0 15px;
+        padding: 0 20px 0 0px;
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        margin: 150px 0;
+        //margin: 100px 0;
+        
+        h4 {
+          display: inline-block;
+          left: 50%;
+          position: relative;
+          transform: translateX(-50%);
+          margin: 75px 0 50px 0;
+          font-weight: bold;
+        }
+        
       }
     }
   `}

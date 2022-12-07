@@ -7,7 +7,8 @@ import { Main } from "../pages/main";
 import { TestModal } from "../pages/testModal";
 import { AuthRoute } from "../utils/AuthRoute";
 import { sodiApi } from "../utils/api";
-import { lazy } from "react";
+import {lazy, useCallback, useEffect} from "react";
+import {userCountryCodeState} from "../store/recoilStates";
 
 function isLogin() {
   return !!localStorage.getItem("accessToken");
@@ -34,6 +35,8 @@ function AnimatedRoutes() {
   const location = useLocation();
   const background = location.state && location.state.background;
   console.log("background", background);
+
+
   return (
     <AnimatePresence>
       <Routes location={location} key={location.pathname}>

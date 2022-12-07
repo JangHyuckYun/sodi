@@ -27,8 +27,7 @@ import styled from "styled-components";
 import { modalDefaultstyle } from "./modalDefault";
 import { sodiApi } from "../utils/api";
 import { FiSend } from "react-icons/fi";
-import { useQuery } from "react-query";
-import toast from "react-hot-toast";
+import {detailDate} from "../utils/util";
 
 const CustomModal = styled(Modal)`
   padding: 0;
@@ -67,6 +66,7 @@ const CustomModal = styled(Modal)`
       }
 
       .commentList {
+      min-height: 75%;
         overflow-y: scroll;
         padding: 10px;
         //height: 80%;
@@ -164,6 +164,7 @@ export const ViewPostModal = React.memo(
     }, [id]);
 
     useEffect(() => {
+
       if (id) {
         loadCommentList();
       }
@@ -193,6 +194,9 @@ export const ViewPostModal = React.memo(
           if (axiosResponse?.statusText === "Created") {
             loadCommentList();
           }
+
+          setCommentTexts(() => "");
+          setReplyId(() => 0);
         }
       },
       [id, replyId]
@@ -223,9 +227,9 @@ export const ViewPostModal = React.memo(
                   onSwiper={(swiper) => console.log(swiper)}
                   onSlideChange={() => console.log("slide change")}
                 >
-                  {images?.map((imgSrc) => (
-                    <SwiperSlide>
-                      <img src={"../assets/images/202212/" + imgSrc} alt="" />
+                  {images?.map((imgSrc, idx) => (
+                    <SwiperSlide key={`viewPostModal_slide_img_swiper_${idx}`}>
+                      <img key={`viewPostModal_slide_img_${idx}`} src={"../assets/images/202212/" + imgSrc} alt="" />
                     </SwiperSlide>
                   ))}
                 </CustomSwiper>
@@ -251,6 +255,7 @@ export const ViewPostModal = React.memo(
                         wrap="nowrap"
                         spacing={3}
                         className={"comment"}
+                        key={`viewPostModal_comment_${idx}`}
                       >
                         <Grid item className={"avatar"}>
                           {/*<Avatar alt="Remy Sharp" src={imgLink} />*/}
@@ -275,7 +280,7 @@ export const ViewPostModal = React.memo(
                             }}
                           >
                             <p style={{ textAlign: "left", color: "gray" }}>
-                              posted 1 minute ago
+                              posted {detailDate(new Date(createDate))}
                             </p>
                             <p
                               style={{

@@ -38,6 +38,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       throw new HttpException('Token 전송 안됨', HttpStatus.UNAUTHORIZED);
     }
 
+    console.log('request.headers', request.headers);
     console.log('authorization', authorization);
 
     const token = authorization.replace('Bearer ', '');
