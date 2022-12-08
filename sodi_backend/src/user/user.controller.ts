@@ -16,15 +16,32 @@ import { Request } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { UserDuplicateRequestDto } from './dto/user.duplicate.request.dto';
 import { LocalAuthGuard } from '../auth/local-auth.guard';
+import { BoardService } from '../board/board.service';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly boardService: BoardService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
-  @Post('get/:id')
-  async getUser(@Param('id') id: number) {
-    return this.userService.findById(id);
+  @Post('find')
+  async getUser(@Req() req) {
+    const { user } = req;
+    const result = this.userService.find(user);
+    console.log('result', result);
+    return result;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('find/board')
+  async getBoards(@Req() req) {
+    const {
+      user: { sub },
+    } = req;
+
+    return this.boardService.findByUserid(Number(sub));
   }
 
   @UseGuards(JwtAuthGuard)

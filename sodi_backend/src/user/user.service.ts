@@ -65,4 +65,8 @@ export class UserService {
       })
       .catch((e) => false);
   }
+
+  find(user: any) {
+    return this.userRepository.findById(Number(user.sub));
+  }
 }

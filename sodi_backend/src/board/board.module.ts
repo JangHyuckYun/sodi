@@ -56,6 +56,7 @@ import { JwtService } from '@nestjs/jwt';
   exports: [
     TypeOrmModule,
     MulterModule,
+    BoardService,
     TypeOrmExModule.forCustomRepository([BoardRepository]),
   ],
 })

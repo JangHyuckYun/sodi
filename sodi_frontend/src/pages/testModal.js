@@ -9,11 +9,12 @@ const testDiv = styled.div`
   `;
 
 export const TestModal = () => {
-  const { test } = useOutletContext();
+  console.log('asdas')
+  // const { test } = useOutletContext();
 
   return (
-    <div style={{ position:'fixed', width:'100px', height:'100px', zIndex:1000 }}>
-      <p>test: {test}</p>
+    <div style={{ position:'fixed', width:'100px', height:'100px', background:'red', zIndex:1000 }}>
+      <p>test</p>
     </div>
   );
 };

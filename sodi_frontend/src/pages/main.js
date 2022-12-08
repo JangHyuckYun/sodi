@@ -14,18 +14,9 @@ import {
   NavigationControl,
   Popup,
   Source,
-  useMap,
 } from "react-map-gl";
-// import "mapbox-gl/dist/mapbox-gl.css";
 import "../assets/css/mapbox-gl2.css";
 
-import {
-  AddressAutofill,
-  SearchBox,
-  AddressMinimap,
-  useConfirmAddress,
-} from "@mapbox/search-js-react";
-import { GeoJsonLayer, DeckGL } from "deck.gl";
 import styled, { css } from "styled-components";
 import {
   Box,
@@ -38,19 +29,18 @@ import {
 import { publicKey, secretKey, sodiApi } from "../utils/api";
 import { useQuery } from "react-query";
 import { ErrorBoundary } from "react-error-boundary";
-import { MainMapSearch } from "../components/main/mainMapSearch";
-import { MdPostAdd } from "react-icons/md";
-import ImageUploading from "react-images-uploading";
-import { encode } from "base64-arraybuffer";
-import { Link, Outlet, Route, Routes, useLocation } from "react-router-dom";
+import {
+  Link,
+  Outlet,
+  useLocation,
+} from "react-router-dom";
 import { AddPostModal } from "../modal/addPostModal";
 import { ViewPostModal } from "../modal/viewPostModal";
-import { atom, useRecoilValue } from "recoil";
-import { queryKeywordState } from "../store/recoilStates";
-import { queryKeywordSelector } from "../store/recoilSelector";
 import toast from "react-hot-toast";
-import { ReactComponent as CustomMarker } from "../assets/images/customMarker.svg";
-import { FaUser } from "react-icons/fa";
+import {FaPowerOff, FaSearch, FaUser} from "react-icons/fa";
+import indexStore from "../store/indexStore";
+import { useObserver } from "mobx-react";
+import {useNavigate} from "react-router";
 // import 'maplibre-gl/dist/maplibre-gl.css';
 
 /* TODO
@@ -71,7 +61,9 @@ const SearchContainer = styled.div`
   flex: 0.25;
   position: fixed;
   background: white;
-  width: 25%;
+  //min-width: 25%;
+  //width: auto;
+  transition: .22s ease-in;
   //height: calc(100% - 20px);
   height: 100%;
   max-height: calc(100% - 20px);
@@ -79,23 +71,47 @@ const SearchContainer = styled.div`
   z-index: 1;
   padding: 15px;
   border-radius: 12px;
-  left: 65px;
-  top: 10px;
+  left: 55px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 1;
   //max-height: 0;
   //transform: translateY(-50%);
 
-  .autoFillList {
-    .autoFillListItem {
-      transition: 0.2s;
-      &.selected {
-        background: rgba(0, 0, 0, 0.1);
-        margin-left: 12px;
-      }
+  ${({ lastPathname }) => css`
+      ${lastPathname === "" && css`
+        width:0;
+        height: 0;
+        min-height: 50%;
+        min-width: 0;
+        padding: 0;
+        opacity: 0;
+      `}
+  `}
+  
+  &.view_search {
+    width: 25%;
+    .autoFillList {
+      .autoFillListItem {
+        transition: 0.2s;
+        &.selected {
+          background: rgba(0, 0, 0, 0.1);
+          margin-left: 12px;
+        }
 
-      &:not(:last-child) {
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        &:not(:last-child) {
+          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
       }
     }
+  }
+  
+  &.view_user {
+    width: 40%;
+  }
+
+  &.view_test {
+    width: 25%;
   }
 
   & .inputContainer {
@@ -204,7 +220,7 @@ const MainNav = styled.nav`
   min-height: 50%;
   background: white;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  padding: 10px;
+  padding: 7px;
   border-radius: 12px;
   left: 10px;
   top: 50%;
@@ -219,7 +235,7 @@ const MainNav = styled.nav`
 const MainNavLink = styled(Link)`
   display: flex;
   width: 100%;
-  height: 25px;
+  height: 31px;
   justify-content: center;
   align-items: center;
   margin-bottom: 10px;
@@ -230,7 +246,18 @@ const MainNavLink = styled(Link)`
   `}
 
   &.active {
-    transform: scale(1.17);
+    //transform: scale(1.1);
+    box-shadow: 0 0 3px 4px rgba(0,0,0, .15);
+    
+    &:before {
+      content: "";
+      width: 3px;
+      height: 31px;
+      background: #5592f8;
+      position: absolute;
+      right: 0;
+      transition: .2s;
+    }
   }
 
   svg {
@@ -242,6 +269,11 @@ const MainNavLink = styled(Link)`
 
 // 126.86767, 37.500286
 export const Main = () => {
+  const location = useLocation();
+  const { pathname } = location;
+  const lastPathname = pathname.split("/main/map/")[1] ?? "";
+  let { searchStore } = indexStore();
+
   useEffect(() => {
     (async () => {
       let url = `https://api.mapbox.com/geocoding/v5/mapbox.places/dongyang.json?limit=5&language=en&access_token=${publicKey}`;
@@ -281,27 +313,15 @@ export const Main = () => {
   const [open, setOpen] = useState(false);
   const [popupInfo, setPopupInfo] = useState(null);
 
-  const [queryKeyword, setQueryKeyword] = useState("");
+  // const [queryKeyword, setQueryKeyword] = useState("");
   const [viewPostOpen, setViewPostOpen] = useState(false);
   const [clickPos, setClickPos] = useState({ lng: 0, lat: 0 });
-
-  const { pathname } = useLocation();
-
-  console.log("pathname", pathname);
 
   const usersAllDataList_query = useQuery(
     ["userAllDataList"],
     () => sodiApi.board.findAll(),
     {
       onError: (err) => (error) => toast.error("asfsfafas"),
-    }
-  );
-  let { data, response } = useQuery(
-    ["searchResultList", queryKeyword],
-    () => sodiApi.map.searchResultList(queryKeyword),
-    {
-      enabled: !!queryKeyword,
-      cacheTime: 6 * 10 * 1000,
     }
   );
 
@@ -355,7 +375,7 @@ export const Main = () => {
   }, []);
 
   const mapRef = useRef();
-  const { current: map } = useMap();
+  // const { current: map } = useMap();
 
   const goTothePlace = useCallback(
     ({
@@ -363,11 +383,11 @@ export const Main = () => {
         dataset: { id },
       },
     }) => {
-      let findIndex = data?.features?.findIndex((d) => {
+      let findIndex = searchStore.searchList?.findIndex((d) => {
         return d.id === id;
       });
       if (findIndex > -1) {
-        let [left, top] = data.features[findIndex].center;
+        let [left, top] = searchStore.searchList[findIndex].center;
 
         setViewState({
           zoom: 10,
@@ -376,141 +396,179 @@ export const Main = () => {
         });
       }
     },
-    [data]
+    [searchStore.searchList]
   );
 
-  return (
-    <ErrorBoundary
-      fallback={
-        <div>
-          <h1>error...</h1>
-        </div>
-      }
-    >
-      <MainNav>
-        <MainNavLink href={"/main/map/test"} bg={"#5592f8"} className={"active"}>
-          <FaUser />
-        </MainNavLink>
+  const navigate = useNavigate();
+  console.log("location", location);
+  return useObserver(() => {
+    console.log("asf");
+    return (
+      <ErrorBoundary
+        fallback={
+          <div>
+            <h1>error...</h1>
+          </div>
+        }
+      >
+        <MainNav>
+          {/* to={pathname === "/main/map/search" ? "" : "search"} className={pathname === "/main/map/search" ? 'active' : ''} bg={"#fc5d5a"} */}
+          <MainNavLink
+            to={lastPathname === "search" ? "" : "search"}
+            state={{ background: location }}
+            className={lastPathname === "search" ? 'active' : ''}
+            bg={"#5592f8"}
+          >
+            <FaSearch />
+          </MainNavLink>
+          <MainNavLink
+            to={lastPathname === "user" ? "" : "user"}
+            state={{ background: location }}
+            className={lastPathname === "user" ? 'active' : ''}
+            bg={"#fdb204"}
+          >
+            <FaUser />
+          </MainNavLink>
+          <MainNavLink
+              to={lastPathname === "test" ? "" : "test"}
+              state={{ background: location }}
+              bg={"#14e0c4"}
+          >
+            <FaUser />
+          </MainNavLink>
 
-        <MainNavLink to={"/main/map/search"} bg={"#fc5d5a"}>
-          <FaUser />
-        </MainNavLink>
-      </MainNav>
+          <MainNavLink to={'logout'} bg={"#fd665e"}>
+            <FaPowerOff />
+          </MainNavLink>
+        </MainNav>
 
-      {pathname !== "/main/map" && (
-        <SearchContainer>
-          <Outlet
-            context={{
-              mainSearch: {
-                searchList: data?.features,
-                goTothePlace: goTothePlace,
-                viewAddPostModal: handleOpen,
-                setQueryKeyword: setQueryKeyword,
-                clickPos: clickPos,
-              },
+        {/*{pathname !== "/main/map" && (*/}
+          <SearchContainer
+              lastPathname={lastPathname}
+            className={"view_" + lastPathname?.replaceAll("/", "_")}
+          >
+            <Suspense fallback={<div>loading...</div>}>
+              <Outlet
+                context={
+                  lastPathname === "search"
+                    ? {
+                        goTothePlace: goTothePlace,
+                        viewAddPostModal: handleOpen,
+                      }
+                    : {}
+                }
+              />
+            </Suspense>
+          </SearchContainer>
+        {/*)}*/}
+
+        <AddPostModal
+          addPostModalData={addPostModalData}
+          open={open}
+          handleClose={handleClose}
+        />
+        <ViewPostModal
+          viewPostModalData={viewPostModalData}
+          open={viewPostOpen}
+          handleClose={viewPostHandleClose}
+        />
+        {/*<Link style={{ position:'absolute', zIndex:1111 }} to={"/main/modal/1"}>GOGOGO</Link>*/}
+        {/*<AddPostButton*/}
+        {/*  color={"primary"}*/}
+        {/*  onClick={() => handleOpen(initialAddPostModalData)}*/}
+        {/*>*/}
+        {/*  <MdPostAdd />*/}
+        {/*</AddPostButton>*/}
+        {/*<FlexContainer>*/}
+        <MapContainer>
+          <Map
+            ref={mapRef}
+            {...viewState}
+            onMove={(evt) => {
+              console.log("asf..........", evt);
+              setViewState(evt.viewState);
             }}
-          />
-        </SearchContainer>
-      )}
+            onClick={(evt) => {
+              const { lng, lat } = evt.lngLat;
+              searchStore.acSearchKeyword = `${lng},${lat}`;
+              navigate('search');
+            }}
+            onViewPortChange={setViewState}
+            mapboxAccessToken={publicKey}
+            // style={{ width: window.innerWidth, height: window.innerHeight }}
+            // mapStyle="mapbox://styles/janghyuck/clbd6e5dl000d15nmhpjqkvzt"
+            // mapStyle="mapbox://styles/janghyuck/clbd74ec2000c15qdxhrwc2qn"
+            mapStyle="mapbox://styles/janghyuck/claib2r2b000115nv6hdl2oct"
+            terrain={{ source: "mapbox-dem", exaggeration: 1.5 }}
+          >
+            <GeolocateControl ref={mapRef} />
+            <NavigationControl />
 
-      <AddPostModal
-        addPostModalData={addPostModalData}
-        open={open}
-        handleClose={handleClose}
-      />
-      <ViewPostModal
-        viewPostModalData={viewPostModalData}
-        open={viewPostOpen}
-        handleClose={viewPostHandleClose}
-      />
-      {/*<Link style={{ position:'absolute', zIndex:1111 }} to={"/main/modal/1"}>GOGOGO</Link>*/}
-      {/*<AddPostButton*/}
-      {/*  color={"primary"}*/}
-      {/*  onClick={() => handleOpen(initialAddPostModalData)}*/}
-      {/*>*/}
-      {/*  <MdPostAdd />*/}
-      {/*</AddPostButton>*/}
-      {/*<FlexContainer>*/}
-      <MapContainer>
-        <Map
-          ref={mapRef}
-          {...viewState}
-          onMove={(evt) => setViewState(evt.viewState)}
-          onClick={(evt) => {
-            console.log("asfsasfasaf", evt);
-            setClickPos(evt.lngLat);
-          }}
-          onViewPortChange={setViewState}
-          mapboxAccessToken={publicKey}
-          // style={{ width: window.innerWidth, height: window.innerHeight }}
-          // mapStyle="mapbox://styles/janghyuck/clbd6e5dl000d15nmhpjqkvzt"
-          // mapStyle="mapbox://styles/janghyuck/clbd74ec2000c15qdxhrwc2qn"
-          mapStyle="mapbox://styles/janghyuck/claib2r2b000115nv6hdl2oct"
-          terrain={{ source: "mapbox-dem", exaggeration: 1.5 }}
-        >
-          <GeolocateControl ref={mapRef} />
-          <NavigationControl />
-
-          <Suspense fallback={<h1>Loading... </h1>}>
-            <Source id={"my-Data"} type={"geojson"} data={data}>
-              <Layer {...layerStyle} />
-            </Source>
-          </Suspense>
-
-          {!usersAllDataList_query
-            ? ""
-            : usersAllDataList_query.data.data.map((post) => (
-                <Marker
-                  key={post.id}
-                  data-id={post.id}
-                  longitude={post.longitude}
-                  latitude={post.latitude}
-                  className={"marker"}
-                  onClick={(e) => {
-                    e.originalEvent.stopPropagation();
-                    post.images = JSON.parse(post.images);
-                    setPopupInfo(post);
-                  }}
-                />
-              ))}
-
-          {popupInfo && (
-            <PreviewPopup
-              anchor="top"
-              longitude={Number(popupInfo.longitude)}
-              latitude={Number(popupInfo.latitude)}
-              onClose={() => setPopupInfo(null)}
-            >
-              <Typography
-                id="modal-description"
-                variant={"h6"}
-                sx={{ whiteSpace: "pre-line", mt: 2, mb: 1 }}
+            <Suspense fallback={<h1>Loading... </h1>}>
+              <Source
+                id={"my-Data"}
+                type={"geojson"}
+                data={searchStore.viewData}
               >
-                {popupInfo.title}
-              </Typography>
-              <Typography
-                id="modal-description"
-                sx={{ whiteSpace: "pre-line" }}
+                <Layer {...layerStyle} />
+              </Source>
+            </Suspense>
+
+            {!usersAllDataList_query
+              ? ""
+              : usersAllDataList_query.data.data.map((post) => (
+                  <Marker
+                    key={post.id}
+                    data-id={post.id}
+                    longitude={post.longitude}
+                    latitude={post.latitude}
+                    className={"marker"}
+                    onClick={(e) => {
+                      e.originalEvent.stopPropagation();
+                      post.images = JSON.parse(post.images);
+                      setPopupInfo(post);
+                    }}
+                  />
+                ))}
+
+            {popupInfo && (
+              <PreviewPopup
+                anchor="top"
+                longitude={Number(popupInfo.longitude)}
+                latitude={Number(popupInfo.latitude)}
+                onClose={() => setPopupInfo(null)}
               >
-                {popupInfo.content}
-              </Typography>
-              <Box className={"btn-group"}>
-                <Button
-                  size={"small"}
-                  onClick={(e) => {
-                    setViewPostModalData(popupInfo);
-                    console.log("post", popupInfo);
-                    setViewPostOpen(true);
-                  }}
+                <Typography
+                  id="modal-description"
+                  variant={"h6"}
+                  sx={{ whiteSpace: "pre-line", mt: 2, mb: 1 }}
                 >
-                  Read more
-                </Button>
-              </Box>
-            </PreviewPopup>
-          )}
-        </Map>
-      </MapContainer>
-      {/*</FlexContainer>*/}
-    </ErrorBoundary>
-  );
+                  {popupInfo.title}
+                </Typography>
+                <Typography
+                  id="modal-description"
+                  sx={{ whiteSpace: "pre-line" }}
+                >
+                  {popupInfo.content}
+                </Typography>
+                <Box className={"btn-group"}>
+                  <Button
+                    size={"small"}
+                    onClick={(e) => {
+                      setViewPostModalData(popupInfo);
+                      console.log("post", popupInfo);
+                      setViewPostOpen(true);
+                    }}
+                  >
+                    Read more
+                  </Button>
+                </Box>
+              </PreviewPopup>
+            )}
+          </Map>
+        </MapContainer>
+        {/*</FlexContainer>*/}
+      </ErrorBoundary>
+    );
+  });
 };

@@ -1,14 +1,39 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import "./App.css";
 import { CssBaseline, GlobalStyles, ThemeProvider } from "@mui/material";
 import defaultTheme, { darkTheme, lightTheme } from "./utils/theme";
-import { BrowserRouter as Router, NavLink } from "react-router-dom";
+import {BrowserRouter as Router, Navigate, NavLink, Outlet, Route, Routes, useLocation} from "react-router-dom";
 import AnimatedRoutes from "./components/animatedRoutes";
+import {LoginContainer} from "./pages/user/login";
+import {JoinContainer} from "./pages/user/join";
+import {Main} from "./pages/main";
+import {MainMapSearch} from "./components/main/mainMapSearch";
+import {TestModal} from "./pages/testModal";
+import indexStore from "./store/indexStore";
+import {UserInfo} from "./components/user/user.info";
+
+function isLogin() {
+    return !!localStorage.getItem("accessToken");
+}
+
+function verify(element) {
+    // console.log('sodiApi.user.verify()', await sodiApi.user.verify())
+    return isLogin() ? element : <Navigate to={"/auth/login"} />;
+}
+
+const Logout = React.memo(() => {
+    localStorage.removeItem("accessToken");
+    return <Navigate to={'/auth/login'} />;
+});
 
 function App() {
   const [myTheme, setTheme] = useState(defaultTheme);
   const [mode, setMode] = useState("light");
-    console.log('process.env.PUBLIC_URL', process.env.PUBLIC_URL)
+
+
+    const location = useLocation();
+    const background = location.state && location.state.background;
+    console.log("background", (!background || location));
   return (
     <ThemeProvider theme={myTheme}>
       <GlobalStyles
@@ -59,7 +84,7 @@ function App() {
         }}
       />
       <CssBaseline enableColorScheme={true} />
-      <Router basename={"/"}>
+
         {/*<nav style={{ position: 'fixed', zIndex: 9999 }}>*/}
         {/*  <NavLink to="/" end>*/}
         {/*    Home*/}
@@ -67,8 +92,22 @@ function App() {
         {/*  <NavLink to="/user/login">About</NavLink>*/}
         {/*  <NavLink to="/user/join">Contact</NavLink>*/}
         {/*</nav>*/}
-        <AnimatedRoutes />
-      </Router>
+        <Routes location={location}>
+            <Route path={"/"} element={<Outlet />}>
+                <Route path={''} element={<Navigate to={'/main/map'} />} />
+                <Route path={"/auth/login"} element={<LoginContainer />} />
+                <Route path={"/auth/join"} element={<JoinContainer />} />
+                <Route path={"/main/map"} element={verify(<Main />)}>
+                    <Route path={"search"} element={<MainMapSearch />} />
+                    <Route path={"test"} element={<TestModal />} />
+                    <Route path={"user"} element={<UserInfo />} />
+                    <Route path={"logout"} element={<Logout />} />
+                </Route>
+            </Route>
+            <Route path={"/main/post"} element={<JoinContainer />} />{" "}
+            <Route path={"/main/post/create"} element={<JoinContainer />} />{" "}
+            <Route path={"/main/post/modify"} element={<JoinContainer />} />{" "}
+        </Routes>
     </ThemeProvider>
   );
 }

@@ -25,4 +25,8 @@ export class BoardService {
   async findOne(boardIdx: number) {
     return this.boardRepository.findOne({ where: { id: boardIdx } });
   }
+
+  async findByUserid(userId: number) {
+    return this.boardRepository.findBy({ userId });
+  }
 }

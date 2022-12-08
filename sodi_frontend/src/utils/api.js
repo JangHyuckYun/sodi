@@ -142,6 +142,12 @@ export const sodiApi = {
         });
       console.log("result", result);
     },
+    find: async () => {
+      return await accessClient.post(`/user/find`).then((res) => {
+        console.log('res',res)
+        return res.data;
+      });
+    },
     findAll: async () => {
       return await client.post(`/user/list/all`).then((res) => res.data);
     },
@@ -174,6 +180,12 @@ export const sodiApi = {
           };
         });
     },
+      findBoards: async() => {
+        return await accessClient.post(`/user/find/board`).then((res) => {
+          console.log('res',res)
+          return res.data;
+        });
+      }
   },
   map: {
     searchResultList: async (keyword, props = {}) => {

@@ -7,6 +7,7 @@ import { ReactQueryDevtools } from "react-query/devtools";
 import {RecoilRoot, useSetRecoilState} from "recoil";
 import toast from "react-hot-toast";
 import {userCountryCodeState} from "./store/recoilStates";
+import {BrowserRouter as Router} from "react-router-dom";
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -33,7 +34,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <QueryClientProvider client={queryClient}>
         {/*<ReactQueryDevtools initialIsOpen={false} />*/}
         {/*<Suspense fallback={<div>Loading...</div>}>*/}
+          <Router>
         <App />
+              </Router>
         {/*</Suspense>*/}
       </QueryClientProvider>
     </RecoilRoot>
