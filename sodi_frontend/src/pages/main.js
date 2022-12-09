@@ -37,10 +37,11 @@ import {
 import { AddPostModal } from "../modal/addPostModal";
 import { ViewPostModal } from "../modal/viewPostModal";
 import toast from "react-hot-toast";
-import {FaPowerOff, FaSearch, FaUser} from "react-icons/fa";
+import {FaMap, FaMapMarked, FaPowerOff, FaSearch, FaUser} from "react-icons/fa";
 import indexStore from "../store/indexStore";
 import { useObserver } from "mobx-react";
 import {useNavigate} from "react-router";
+import countries50m from '../assets/json/countries-50m.json';
 // import 'maplibre-gl/dist/maplibre-gl.css';
 
 /* TODO
@@ -112,6 +113,14 @@ const SearchContainer = styled.div`
 
   &.view_test {
     width: 25%;
+  }
+
+  &.view_post {
+    width: 50%;
+  }
+  
+  &.view_board_list {
+    width: 50%;
   }
 
   & .inputContainer {
@@ -272,14 +281,14 @@ export const Main = () => {
   const location = useLocation();
   const { pathname } = location;
   const lastPathname = pathname.split("/main/map/")[1] ?? "";
-  let { searchStore } = indexStore();
+  let { searchStore, boardStore, addModalStore } = indexStore();
 
   useEffect(() => {
     (async () => {
       let url = `https://api.mapbox.com/geocoding/v5/mapbox.places/dongyang.json?limit=5&language=en&access_token=${publicKey}`;
       let data = await fetch(url)
         .then((e) => {
-          console.log("e", e);
+          // console.log("e", e);
           return e.json();
         })
         .catch((e) => {
@@ -292,14 +301,6 @@ export const Main = () => {
 
   // return <Map mapLib={maplibregl} />;
   // 원하는 포크 사용 시 사용
-  const initialAddPostModalData = {
-    coordinates: [],
-    bbox: [],
-    id: "",
-    place_name: "",
-    text: "",
-    type: "",
-  };
   const [viewState, setViewState] = React.useState({
     longitude: 127.03743678547232,
     latitude: 37.52019604873446,
@@ -307,15 +308,10 @@ export const Main = () => {
     transitionDuration: 100,
   });
 
-  const [addPostModalData, setAddPostModalData] = useState(
-    initialAddPostModalData
-  );
-  const [open, setOpen] = useState(false);
   const [popupInfo, setPopupInfo] = useState(null);
 
   // const [queryKeyword, setQueryKeyword] = useState("");
   const [viewPostOpen, setViewPostOpen] = useState(false);
-  const [clickPos, setClickPos] = useState({ lng: 0, lat: 0 });
 
   const usersAllDataList_query = useQuery(
     ["userAllDataList"],
@@ -334,13 +330,6 @@ export const Main = () => {
     },
   };
 
-  const handleOpen = useCallback(
-    ({ coordinates, bbox, id, place_name, text, type }) => {
-      setAddPostModalData({ coordinates, bbox, id, place_name, text, type });
-      setOpen(true);
-    },
-    []
-  );
   const [viewPostModalData, setViewPostModalData] = useState(false);
   const viewPostHandleOpen = useCallback(
     ({ coordinates, bbox, id, place_name, text, type, images }) => {
@@ -357,11 +346,6 @@ export const Main = () => {
     },
     []
   );
-
-  const handleClose = useCallback(() => {
-    console.log("close");
-    setOpen(false);
-  }, []);
 
   const viewPostHandleClose = useCallback(() => {
     setViewPostOpen(false);
@@ -402,7 +386,6 @@ export const Main = () => {
   const navigate = useNavigate();
   console.log("location", location);
   return useObserver(() => {
-    console.log("asf");
     return (
       <ErrorBoundary
         fallback={
@@ -414,10 +397,18 @@ export const Main = () => {
         <MainNav>
           {/* to={pathname === "/main/map/search" ? "" : "search"} className={pathname === "/main/map/search" ? 'active' : ''} bg={"#fc5d5a"} */}
           <MainNavLink
+              to={""}
+              state={{ background: location }}
+              className={lastPathname === "" ? 'active' : ''}
+              bg={"#5592f8"}
+          >
+            <FaMap />
+          </MainNavLink>
+          <MainNavLink
             to={lastPathname === "search" ? "" : "search"}
             state={{ background: location }}
             className={lastPathname === "search" ? 'active' : ''}
-            bg={"#5592f8"}
+            bg={"#790dfc"}
           >
             <FaSearch />
           </MainNavLink>
@@ -437,6 +428,15 @@ export const Main = () => {
             <FaUser />
           </MainNavLink>
 
+          <MainNavLink
+              to={lastPathname === "board/list" ? "" : "board/list"}
+              state={{ background: location }}
+              className={lastPathname === "board/list" ? 'active' : ''}
+              bg={"#ffc600"}
+          >
+            <FaMapMarked />
+          </MainNavLink>
+
           <MainNavLink to={'logout'} bg={"#fd665e"}>
             <FaPowerOff />
           </MainNavLink>
@@ -453,7 +453,6 @@ export const Main = () => {
                   lastPathname === "search"
                     ? {
                         goTothePlace: goTothePlace,
-                        viewAddPostModal: handleOpen,
                       }
                     : {}
                 }
@@ -462,16 +461,8 @@ export const Main = () => {
           </SearchContainer>
         {/*)}*/}
 
-        <AddPostModal
-          addPostModalData={addPostModalData}
-          open={open}
-          handleClose={handleClose}
-        />
-        <ViewPostModal
-          viewPostModalData={viewPostModalData}
-          open={viewPostOpen}
-          handleClose={viewPostHandleClose}
-        />
+        <AddPostModal />
+        <ViewPostModal/>
         {/*<Link style={{ position:'absolute', zIndex:1111 }} to={"/main/modal/1"}>GOGOGO</Link>*/}
         {/*<AddPostButton*/}
         {/*  color={"primary"}*/}
@@ -485,12 +476,14 @@ export const Main = () => {
             ref={mapRef}
             {...viewState}
             onMove={(evt) => {
-              console.log("asf..........", evt);
               setViewState(evt.viewState);
             }}
             onClick={(evt) => {
+              console.log('evt', evt)
               const { lng, lat } = evt.lngLat;
               searchStore.acSearchKeyword = `${lng},${lat}`;
+              searchStore.acSearchKeywordOnlyTxt = false;
+              searchStore.isClick = true;
               navigate('search');
             }}
             onViewPortChange={setViewState}
@@ -513,6 +506,7 @@ export const Main = () => {
                 <Layer {...layerStyle} />
               </Source>
             </Suspense>
+
 
             {!usersAllDataList_query
               ? ""
@@ -554,10 +548,15 @@ export const Main = () => {
                 <Box className={"btn-group"}>
                   <Button
                     size={"small"}
-                    onClick={(e) => {
-                      setViewPostModalData(popupInfo);
-                      console.log("post", popupInfo);
-                      setViewPostOpen(true);
+                    onClick={async (e) => {
+
+                      // setViewPostModalData(popupInfo);
+                      // console.log("post", popupInfo);
+                      // setViewPostOpen(true);
+                      // boardModalStore.board = popupInfo;
+                      // navigate(`post`)
+                      boardStore.open = true;
+                      await boardStore.setBoard(popupInfo);
                     }}
                   >
                     Read more

@@ -8,6 +8,10 @@ const mainSearchStore = observable({
   acSearchResults: [],
   acSearchKeyword: "",
   acSearchKeywordOnlyTxt: false,
+  isClick: false,
+  originalCountryInfo: {
+
+  },
   //action
   async updateSearchList(searchKeyword) {
     // this.queryKeyword = searchKeyword;

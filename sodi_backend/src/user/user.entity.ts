@@ -35,12 +35,35 @@ export class User {
   country: string;
 
   @Column({
+    name: 'user_country_code',
+    nullable: false,
+    comment: '유저가 사는 나라 code',
+  })
+  countryCode: string;
+
+  @Column({
     name: 'user_role',
     nullable: false,
     comment: '유저 권한',
     default: '["User"]',
   })
   role: string;
+
+  @Column({
+    name: 'user_profile_img',
+    nullable: true,
+    comment: '프로필 이미지',
+    default: '',
+  })
+  profileImg: string;
+
+  @Column({
+    name: 'user_background_img',
+    nullable: true,
+    comment: '백그라운드 이미지',
+    default: '',
+  })
+  backgroundImg: string;
 
   @Column({
     name: 'user_is_activate',

@@ -5,13 +5,13 @@ import { Role } from '../../roles/roles.enum';
 
 const messages = errorMessages.kr.createUser;
 
-export class CreateUserDto {
+export class UserModifyDto {
   @ApiProperty({ type: Number, description: '유저 이름 id', default: 1 })
   @IsNotEmpty({ message: 'name|' + messages.empty.name })
   id?: number;
 
   @ApiProperty({ type: String, description: '유저 이름', default: 'jangHyuck' })
-  @IsNotEmpty({ message: 'name|' + messages.empty.name })
+  // @IsNotEmpty({ message: 'name|' + messages.empty.name })
   name: string;
 
   @ApiProperty({
@@ -28,13 +28,8 @@ export class CreateUserDto {
     description: '유저 비밀번호',
     default: 'asd123!',
   })
-  @Matches(/^(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/, {
-    message: 'password|' + messages.matches.password,
-  })
-  @IsNotEmpty({ message: 'password|' + messages.empty.password })
-  password: string;
+  password?: string;
 
-  @IsNotEmpty({ message: 'passwordCheck|' + messages.empty.password })
   passwordCheck?: string;
 
   @ApiProperty({ type: Number, description: '유저 나이', default: 1 })
@@ -49,6 +44,8 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'countryCode|' + messages.empty.country })
   countryCode: string;
 
+  backgroundImg = false;
+
   @ApiProperty({
     type: String,
     description: '유저 권한',
@@ -58,4 +55,6 @@ export class CreateUserDto {
 
   @ApiProperty({ type: Boolean, description: '유저 계정 활성화 여부' })
   isActivate?: boolean;
+
+  files: null;
 }

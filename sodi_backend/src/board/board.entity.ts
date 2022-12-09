@@ -56,4 +56,13 @@ export class Board {
     cascade: true,
   })
   comments: Comment[];
+
+  @Column({
+    name: 'board_or_cn_info',
+    nullable: false,
+    comment: '게시글의 나라 정보',
+    // type: 'longblob',
+    default: '{}',
+  })
+  originalCountryInfo: string;
 }

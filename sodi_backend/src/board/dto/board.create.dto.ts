@@ -70,4 +70,6 @@ export class CreateBoardDto {
     default: [],
   })
   images = '[]';
+
+  originalCountryInfo: string;
 }

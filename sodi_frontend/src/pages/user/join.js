@@ -2,7 +2,7 @@ import {
   Box,
   Button,
   Checkbox,
-  Container,
+  Container, Fab, FilledInput,
   FormControlLabel,
   Grid,
   InputLabel,
@@ -25,6 +25,7 @@ import { useRecoilValue } from "recoil";
 import { countrycodeState, messageState } from "../../store/recoilStates";
 import { sodiApi } from "../../utils/api";
 import { useNavigate } from "react-router-dom";
+import {FaFileImage} from "react-icons/fa";
 
 const LoginBgContainer = styled(Container)`
   display: flex;
@@ -50,6 +51,7 @@ const LoginBgContainer = styled(Container)`
     .leftBox {
       border-radius: 12px !important;
       overflow: hidden;
+      position: relative;
       img {
         width: 100%;
         height: 100%;
@@ -82,6 +84,8 @@ export const JoinContainer = () => {
     name: "",
     age: 1,
     country: "select",
+    countryCode: "",
+    countryOrignTxt:'',
   });
   const [errors, setErrors] = useState({
     password: { state:false, msg:'' },
@@ -94,11 +98,28 @@ export const JoinContainer = () => {
   });
 
   const onChangeInputs = useCallback(
-    ({ target: { value, name } }) => {
-      setIntpus({
-        ...inputs,
-        [name]: value,
-      });
+    ({ target }) => {
+      const { value, name } = target;
+
+
+      console.log('target.innerText', target.innerText)
+
+      if (name === "country") {
+        const { country, countryCode } = JSON.parse(value);
+        console.log('country, countryCode' ,country, countryCode)
+        setIntpus({
+          ...inputs,
+          [name]: country,
+          countryCode: countryCode,
+          countryOrignTxt: value,
+        });
+
+      } else {
+        setIntpus({
+          ...inputs,
+          [name]: value,
+        });
+      }
     },
     [inputs]
   );
@@ -151,6 +172,9 @@ export const JoinContainer = () => {
           alert(messages.join.age);
           return true;
         }
+      } else if (key === "country" && ( value?.country?.length === 0 || value?.countryCode?.length === 0)) {
+        alert(messages.join.isNull.select(key));
+        return true;
       } else if ((value?.trim() ?? "").length === 0) {
         alert(messages.join.isNull.select(key));
         return true;
@@ -298,14 +322,14 @@ export const JoinContainer = () => {
               labelId={"country"}
               id={"country"}
               name={"country"}
-              value={inputs.country}
+              value={inputs.countryOrignTxt}
               onChange={(e) => onChangeInputs(e)}
             >
               <MenuItem value={"select"} selected>
                 Select Country...
               </MenuItem>
               {countries?.all?.map(({ name, alpha2 }) => (
-                <MenuItem value={alpha2}>{name}</MenuItem>
+                <MenuItem value={JSON.stringify({ country:name,  countryCode: alpha2})}>{name}</MenuItem>
               ))}
             </Select>
             <br />

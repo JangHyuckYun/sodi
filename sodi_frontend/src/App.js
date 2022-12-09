@@ -11,6 +11,8 @@ import {MainMapSearch} from "./components/main/mainMapSearch";
 import {TestModal} from "./pages/testModal";
 import indexStore from "./store/indexStore";
 import {UserInfo} from "./components/user/user.info";
+import {ViewPost} from "./pages/post/viewPost";
+import {BoardAll} from "./pages/board/boardAll";
 
 function isLogin() {
     return !!localStorage.getItem("accessToken");
@@ -102,6 +104,8 @@ function App() {
                     <Route path={"test"} element={<TestModal />} />
                     <Route path={"user"} element={<UserInfo />} />
                     <Route path={"logout"} element={<Logout />} />
+                    <Route path={"post"} element={<ViewPost />} />
+                    <Route path={"board/list"} element={<BoardAll />} />
                 </Route>
             </Route>
             <Route path={"/main/post"} element={<JoinContainer />} />{" "}

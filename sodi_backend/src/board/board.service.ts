@@ -29,4 +29,17 @@ export class BoardService {
   async findByUserid(userId: number) {
     return this.boardRepository.findBy({ userId });
   }
+
+  async updateHits(boardId: number, userId: number) {
+    const board: Board = await this.boardRepository.findOneBy({
+      id: boardId,
+    });
+    console.log(Number(board.userId), userId);
+    if (Number(board.userId) !== userId) {
+      board.hits = Number(board.hits) + 1;
+      await this.boardRepository.save(board);
+    }
+
+    return null;
+  }
 }

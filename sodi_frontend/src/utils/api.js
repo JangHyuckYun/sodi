@@ -1,7 +1,7 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 import { SearchSession } from "@mapbox/search-js-core";
-import {MapboxSearchBox} from "@mapbox/search-js-web";
+import { MapboxSearchBox } from "@mapbox/search-js-web";
 // import https from "https";
 
 export const publicKey = process.env.REACT_APP_PUBLIC_KEY;
@@ -105,7 +105,6 @@ accessClient.interceptors.response.use(
   }
 );
 
-
 export const sodiApi = {
   user: {
     login: async (email, password) => {
@@ -144,7 +143,7 @@ export const sodiApi = {
     },
     find: async () => {
       return await accessClient.post(`/user/find`).then((res) => {
-        console.log('res',res)
+        console.log("userData: ", res.data);
         return res.data;
       });
     },
@@ -180,12 +179,53 @@ export const sodiApi = {
           };
         });
     },
-      findBoards: async() => {
-        return await accessClient.post(`/user/find/board`).then((res) => {
-          console.log('res',res)
-          return res.data;
-        });
+    findBoards: async () => {
+      return await accessClient.post(`/user/find/board`).then((res) => {
+        console.log("res", res);
+        return res.data;
+      });
+    },
+    modifyUser: async (datas, id, { profileImg, backgroundImg }) => {
+      console.log('asfsafsa')
+      datas.age = Number(datas.age);
+      let result = { ...datas, id};
+
+
+      let formData = new FormData();
+      formData.append('id', id)
+      for (let key in datas) {
+        const value = datas[key];
+        formData.append(key, value);
       }
+
+      if (profileImg) {
+        formData.append('files', profileImg);
+        formData.append('profileImg', true)
+      } else {
+
+      }
+
+      if (backgroundImg) {
+        formData.append('files', backgroundImg);
+        formData.append('backgroundImg', true)
+      } else {
+
+      }
+
+      return await accessClient
+        .post(`/user/modify`, formData, { headers: MULTIPART })
+        .then((e) => {
+          console.log("e", e);
+          return e;
+        })
+        .catch((e) => {
+          console.log("e", e);
+          return {
+            statusText: "Bad Request",
+            errors: e?.message ?? [],
+          };
+        });
+    },
   },
   map: {
     searchResultList: async (keyword, props = {}) => {
@@ -222,7 +262,7 @@ export const sodiApi = {
     },
 
     uploadPost: async (post, images) => {
-      // let { title, content, country, images } = post;
+      let { longitude, latitude } = post;
       images = images?.map((d) => d?.file) ?? [];
       let formData = new FormData();
       for (let key in post) {
@@ -242,6 +282,9 @@ export const sodiApi = {
           console.log("err", err);
         });
     },
+    updateHits: async (id) => {
+      await accessClient.post(`/board/hits/${id}`);
+    }
   },
   comment: {
     findAllByBoardId: async (boardId) => {

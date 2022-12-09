@@ -25,7 +25,7 @@ import { JwtService } from '@nestjs/jwt';
             console.log('destination', file, cb);
             // 파일저장위치 + 년월 에다 업로드 파일을 저장한다.
             // 요 부분을 원하는 데로 바꾸면 된다.
-            const dest = `${config.get('ATTACH_SAVE_PATH_WINDOW')}/${format(
+            const dest = `${config.get('ATTACH_SAVE_PATH_MAC')}/${format(
               new Date(),
               '{yyyy}{MM}',
             )}/`;

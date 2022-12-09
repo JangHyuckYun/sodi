@@ -48,6 +48,13 @@ export class BoardController {
     return this.boardService.findOne(boardIdx);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post('hits/:boardId')
+  async hits(@Param('boardId') boardId: number, @Req() req): Promise<Board> {
+    console.log(req.user);
+    return this.boardService.updateHits(boardId, Number(req?.user?.sub));
+  }
+
   @Post('create')
   @UseInterceptors(FilesInterceptor('files'))
   @Bind(UploadedFiles())

@@ -4,6 +4,8 @@ import { CreateUserDto } from './dto/user.create.dto';
 import { UserRepository } from './user.repository';
 import * as bcrypt from 'bcryptjs/dist/bcrypt';
 import { UserDuplicateRequestDto } from './dto/user.duplicate.request.dto';
+import { UserModifyDto } from './dto/user.modify.dto';
+import { Express } from 'express';
 
 @Injectable()
 export class UserService {
@@ -68,5 +70,62 @@ export class UserService {
 
   find(user: any) {
     return this.userRepository.findById(Number(user.sub));
+  }
+
+  async modifyUser(
+    modifyUser: UserModifyDto,
+    files: Array<Express.Multer.File>,
+  ) {
+    const user: User = await this.userRepository.findOneBy({
+      id: modifyUser.id,
+    });
+
+    console.log('beforeUser: ', user);
+
+    if (modifyUser.password.length > 0) {
+      user.password = await bcrypt.hash(modifyUser.password, 10);
+    }
+
+    Object.keys(modifyUser).forEach((key) => {
+      (async () => {
+        const value = modifyUser[key];
+
+        if (
+          value !== user[key] &&
+          !['backgroundImg', 'profileImg', 'password'].includes(key)
+        ) {
+          user[key] = value;
+        }
+      })();
+    });
+
+    if (files) {
+      if (files.length === 1) {
+        user[modifyUser.backgroundImg ? 'backgroundImg' : 'profileImg'] =
+          files[0].filename;
+      } else if (files.length === 1) {
+        user.profileImg = files[0].filename;
+        user.backgroundImg = files[1].filename;
+      }
+    }
+
+    // files.forEach((file, idx) => {
+    //   if (idx === 0) user.profileImg = file.filename;
+    //   else user.backgroundImg = file.filename;
+    // });
+    //
+    // if (modifyUser?.files && files.length > 0) {
+    //   user[modifyUser.files === 'profileImg' ? 'backgroundImg' : 'profileImg'] =
+    //     files[0].filename;
+    // } else if (!modifyUser?.files && files.length > 1) {
+    //   files.forEach((file, idx) => {
+    //     if (idx === 0) user.profileImg = file.filename;
+    //     else user.backgroundImg = file.filename;
+    //   });
+    // }
+
+    console.log('afterUser: ', user);
+
+    return await this.userRepository.save(user);
   }
 }
