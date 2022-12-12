@@ -14,9 +14,9 @@ import { CreateBoardDto } from './dto/board.create.dto';
 import { BoardService } from './board.service';
 import { Board } from './board.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import * as path from 'path';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
+import { BoardUpdateDto } from './dto/board.update.dto';
 
 @Controller('board')
 export class BoardController {
@@ -25,20 +25,27 @@ export class BoardController {
   @UseGuards(JwtAuthGuard)
   @Post('list/all')
   async allBoardList(@Req() req): Promise<Array<any>> {
-    const result = (await this.boardService.findAll()).map((board) => {
-      const boardResult = Object.keys(board).reduce(
-        (acc, key) => {
-          if (key.includes('image')) {
-            if (board[key]?.length > 0) acc.images.push(board[key]);
-          } else {
-            acc[key] = board[key];
-          }
-          return acc;
-        },
-        { images: [] },
-      );
-      return boardResult;
-    });
+    const result = await this.boardService.findAll();
+    //   .map((board) => {
+    //   const boardResult = Object.keys(board).reduce(
+    //     (acc, key) => {
+    //       if (key.includes('image')) {
+    //         if (board[key]?.length > 0) {
+    //           board[key] =
+    //             typeof board[key] === 'object'
+    //               ? JSON.parse(board[key])
+    //               : board[key];
+    //           acc.images.push(board[key]);
+    //         }
+    //       } else {
+    //         acc[key] = board[key];
+    //       }
+    //       return acc;
+    //     },
+    //     { images: [] },
+    //   );
+    //   return boardResult;
+    // });
 
     return result;
   }
@@ -75,5 +82,17 @@ export class BoardController {
       };
     });
     this.boardService.createBoard(createBoardDto, files);
+  }
+
+  @Post('post/update')
+  @UseGuards(JwtAuthGuard)
+  async updateBoard(@Req() req, @Body() boardUpdateDto: BoardUpdateDto) {
+    return await this.boardService.updateBoard(boardUpdateDto);
+  }
+
+  @Post('post/delete/:id')
+  @UseGuards(JwtAuthGuard)
+  async deleteBoard(@Req() req, @Param() boardId: number) {
+    return await this.boardService.delete(boardId);
   }
 }

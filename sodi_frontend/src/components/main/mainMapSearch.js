@@ -1,8 +1,6 @@
 import {
-  Autocomplete,
   Box,
   Button,
-  ButtonGroup,
   Card,
   CardActions,
   CardContent,
@@ -81,18 +79,12 @@ export const MainMapSearch = React.memo(() => {
   }, [searchKeyword]);
 
   useEffect(() => {
-    console.log(
-      "searchStore.acSearchKeywordOnlyTxt",
-      searchStore.acSearchKeywordOnlyTxt
-    );
-    console.log("acSearchKeyword", searchStore.acSearchKeyword);
     if (!searchStore.acSearchKeywordOnlyTxt) {
       const debounce = setTimeout(() => {
         (async () => {
           let data = await sodiApi.map.getAutoCompleteList(
             searchStore.acSearchKeyword
           );
-          console.log("data", data);
           if (data.features) {
             searchStore.acSearchResults =
               data.features.map(
@@ -186,13 +178,6 @@ export const MainMapSearch = React.memo(() => {
           }
         } else if (searchAutoFillCnt === 0 && tg.isAdd) {
           addModalStore.open = true;
-          console.log(
-            '(tg.text.trim().split(",")).map(str => Number(str))',
-            searchStore.acSearchKeyword
-              .trim()
-              .split(",")
-              .map((str) => Number(str))
-          );
           addModalStore.addPostModalData = {
             coordinates: searchStore.acSearchKeyword
               .trim()
@@ -235,7 +220,7 @@ export const MainMapSearch = React.memo(() => {
               }}
               onKeyDown={(e) => searchInputKeyDown(e)}
             />
-            <List className={"autoFillList"}>
+            <List className={"autoFillList"} sx={{padding: searchStore.acSearchResults.length > 0 ? '8px 0' : '0px'}}>
               {searchStore.acSearchResults.length > 0
                 ? searchStore.acSearchResults.map(
                     ({ text, place_name }, idx) => (
@@ -249,8 +234,8 @@ export const MainMapSearch = React.memo(() => {
                         onClick={() => {
                           let tg =
                             searchStore.acSearchResults[searchAutoFillCnt];
+
                           if (searchAutoFillCnt === 0 && tg.isAdd) {
-                            addModalStore.open = true;
                             addModalStore.addPostModalData = {
                               coordinates: searchStore.acSearchKeyword
                                 .trim()
@@ -260,6 +245,8 @@ export const MainMapSearch = React.memo(() => {
                               id: -1,
                               place_name: "",
                             };
+                            addModalStore.open = true;
+                            searchStore.acSearchKeyword = "";
                           } else {
                             setSearchKeyword(tg.text);
                             searchStore.acSearchKeyword = tg.text;

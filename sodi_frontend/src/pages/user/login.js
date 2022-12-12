@@ -96,9 +96,7 @@ export const LoginContainer = () => {
       animate={{ opacity: 1, position: "relative" }}
       exit={{ opacity: 0, position: "absolute" }}
     >
-      {/*<BackBackground />*/}
       <video muted={true} autoPlay={true} loop={true}>
-        {/*<source src={"../assets/videos/coverr-view-from-airplane-window-3707-1080p.mp4"} type={'video/mp4'} />*/}
         <source src={"../assets/videos/vid3.mp4"} type={'video/mp4'} />
       </video>
       <CustomBothSidesContainer

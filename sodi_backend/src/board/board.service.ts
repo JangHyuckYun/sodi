@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateBoardDto } from './dto/board.create.dto';
 import { BoardRepository } from './board.repository';
 import { Board } from './board.entity';
+import { BoardUpdateDto } from './dto/board.update.dto';
 
 @Injectable()
 export class BoardService {
@@ -41,5 +42,14 @@ export class BoardService {
     }
 
     return null;
+  }
+
+  async updateBoard(boardUpdateDto: BoardUpdateDto) {
+    const board = this.boardRepository.create({ ...boardUpdateDto });
+    return await this.boardRepository.save(board);
+  }
+
+  async delete(boardId: number) {
+    return await this.boardRepository.delete(boardId);
   }
 }

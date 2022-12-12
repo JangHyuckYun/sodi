@@ -28,7 +28,6 @@ export class AuthService {
   }
 
   async login(user: User) {
-    // const payload = Object.assign({}, Payload(user.email, user.name));
     const payload: Payload = {
       email: user.email,
       name: user.name,
@@ -40,7 +39,6 @@ export class AuthService {
         secret: this.configService.get('JWT_SECRET'),
       }),
     };
-    console.log('async login() -> after', result);
     return result;
   }
 

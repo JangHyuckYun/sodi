@@ -1,20 +1,18 @@
-import React, {Suspense, useEffect} from "react";
+import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import {QueryCache, QueryClient, QueryClientProvider} from "react-query";
-import { ReactQueryDevtools } from "react-query/devtools";
-import {RecoilRoot, useSetRecoilState} from "recoil";
+import {RecoilRoot} from "recoil";
 import toast from "react-hot-toast";
-import {userCountryCodeState} from "./store/recoilStates";
 import {BrowserRouter as Router} from "react-router-dom";
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
-      onError: (error) => {
-          console.log('error', error);
-          toast.error(error.message);
-      }
+    onError: (error) => {
+      console.log("error", error);
+      toast.error(error.message);
+    },
   }),
   defaultOptions: {
     queries: {
@@ -34,9 +32,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <QueryClientProvider client={queryClient}>
         {/*<ReactQueryDevtools initialIsOpen={false} />*/}
         {/*<Suspense fallback={<div>Loading...</div>}>*/}
-          <Router>
-        <App />
-              </Router>
+        <Router>
+          <App />
+        </Router>
         {/*</Suspense>*/}
       </QueryClientProvider>
     </RecoilRoot>

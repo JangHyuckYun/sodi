@@ -9,7 +9,6 @@ const testDiv = styled.div`
   `;
 
 export const TestModal = () => {
-  console.log('asdas')
   // const { test } = useOutletContext();
 
   return (

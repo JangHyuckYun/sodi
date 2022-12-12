@@ -151,24 +151,14 @@ export const JoinContainer = () => {
   );
 
   const submitJoin = useCallback(async () => {
-    // await checkDuplicate('email');
-    // await checkDuplicate('name');
-    //
-    // console.log('dupliates', dupliates)
-
     if (await checkDuplicate('email') || await checkDuplicate('name')) {
       return false;
     }
-
     const isNull = Object.keys(inputs).some((key) => {
       const value = inputs[key];
 
       if (typeof value === "number") {
-        if (
-          (key === "age" && value <= 0) ||
-          value > 120 ||
-          String(value).length === 0
-        ) {
+        if ((key === "age" && value <= 0) || value > 120 || String(value).length === 0) {
           alert(messages.join.age);
           return true;
         }
@@ -178,20 +168,14 @@ export const JoinContainer = () => {
       } else if ((value?.trim() ?? "").length === 0) {
         alert(messages.join.isNull.select(key));
         return true;
-      }
-
-      if (key === "password" && value !== inputs.passwordCheck) {
+      } if (key === "password" && value !== inputs.passwordCheck) {
         alert(messages.join.isNull.password);
         return true;
-      }
-
-      if (key === "country" && value === "select") {
+      } if (key === "country" && value === "select") {
         alert(messages.join.isNull.country);
         return true;
       }
-
-      return false;
-    });
+      return false; });
 
     if (isNull) return false;
 
@@ -201,7 +185,6 @@ export const JoinContainer = () => {
       alert(messages.join.success.create);
       return navigate("/auth/login");
     } else {
-      console.log('errors',errors)
       errors.some(err => {
         let [type, msg] = err.split("|");
         setErrors({

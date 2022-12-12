@@ -2,23 +2,18 @@ import {
   Bind,
   Body,
   Controller,
-  Get,
-  Param,
   Post,
   Req,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
-  UsePipes,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from './user.entity';
 import { CreateUserDto } from './dto/user.create.dto';
-import { ApiBody, ApiCreatedResponse } from '@nestjs/swagger';
-import { Express, Request } from 'express';
+import { ApiBody } from '@nestjs/swagger';
+import { Express } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { UserDuplicateRequestDto } from './dto/user.duplicate.request.dto';
-import { LocalAuthGuard } from '../auth/local-auth.guard';
 import { BoardService } from '../board/board.service';
 import { UserModifyDto } from './dto/user.modify.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
@@ -54,8 +49,8 @@ export class UserController {
   async getAllUser() {
     return this.userService.findAll();
   }
-
-  // @UseGuards(JwtAuthGuard)
+  // user.controller.ts
+  @UseGuards(JwtAuthGuard)
   @Post('/duplicate')
   async duplicate(@Body() userDuplicateReqDto: UserDuplicateRequestDto) {
     return this.userService.duplicate(userDuplicateReqDto);
@@ -69,7 +64,6 @@ export class UserController {
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Body() modifyUser: UserModifyDto,
   ) {
-    console.log(modifyUser, files);
     return await this.userService.modifyUser(modifyUser, files);
   }
 

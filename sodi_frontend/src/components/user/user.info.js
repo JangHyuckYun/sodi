@@ -73,8 +73,6 @@ export const UserInfo = React.memo(() => {
     country: userStore.user.country ?? "",
   });
 
-  console.log("inputs", inputs);
-
   const [errors, setErrors] = useState({
     password: { state: false, msg: "" },
     age: { state: false, msg: "" },
@@ -91,7 +89,6 @@ export const UserInfo = React.memo(() => {
   const [previewBackground, setPreviewBackground] = useState("");
 
   const encodeFileToBase64 = (fileBlob, type) => {
-    console.log("fileBlob", fileBlob);
 
     if (type === "profile") {
       setProfileImg(fileBlob);
@@ -103,7 +100,6 @@ export const UserInfo = React.memo(() => {
     reader.readAsDataURL(fileBlob);
     return new Promise((resolve) => {
       reader.onload = () => {
-        console.log("reader.result", reader.result);
         if (type === "profile") {
           setPreviewProfile(reader.result);
         } else if (type === "background") {
@@ -117,7 +113,6 @@ export const UserInfo = React.memo(() => {
   useEffect(() => {
     (async () => {
       await userStore.setUser();
-      console.log("country", userStore.user.country);
       setIntpus({
         email: userStore.user.email ?? "",
         password: "",
@@ -133,13 +128,6 @@ export const UserInfo = React.memo(() => {
             countryCode: userStore.user.countryCode,
           }),
       });
-      console.log(
-        userStore.user.countryOrignTxt ??
-          JSON.stringify({
-            country: userStore.user.country,
-            countryCode: userStore.user.countryCode,
-          })
-      );
     })();
   }, []);
 
@@ -200,12 +188,6 @@ export const UserInfo = React.memo(() => {
     if ((await checkDuplicate("email")) || (await checkDuplicate("name"))) {
       return false;
     }
-
-    console.log(
-      'Object.keys(inputs).filter(key => key !== "password" || key !== "passwordCheck")',
-      Object.keys(inputs)
-    );
-
     const isNull = Object.keys(inputs).some((key) => {
       const value = inputs[key];
 
@@ -228,7 +210,6 @@ export const UserInfo = React.memo(() => {
         alert(messages.join.isNull.select(key));
         return true;
       }
-      console.log(key, value !== inputs.passwordCheck, value, inputs);
 
       if (key === "password" && value !== inputs.passwordCheck) {
         alert(messages.join.isNull.password);
@@ -254,10 +235,8 @@ export const UserInfo = React.memo(() => {
     if (statusText === "Created") {
       alert(messages.join.success.create);
     } else {
-      console.log("errors", errors);
       errors.some((err) => {
         let [type, msg] = err.split("|");
-        console.log(type, msg);
         setErrors({
           ...errors,
           [type]: msg,
@@ -277,7 +256,7 @@ export const UserInfo = React.memo(() => {
             <img
               src={
                 !previewBackground
-                  ? `../../assets/images/user/${userStore.user.sub}/${userStore.user.backgroundImg}`
+                  ? `../../../assets/images/user/${userStore.user.id}/${userStore.user.backgroundImg}`
                   : previewBackground
               }
               className={"previewBackground"}
@@ -295,6 +274,7 @@ export const UserInfo = React.memo(() => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            transform: "translateY(-40px)",
           }}
         >
           <label htmlFor="upload-photo">
@@ -316,12 +296,12 @@ export const UserInfo = React.memo(() => {
               component="span"
               aria-label="add"
               sx={{
-                width: "50px",
-                height: "50px",
+                width: "66px",
+                height: "66px",
                 fontSize: "20px",
                 backgroundImage: `url(${
                   !previewProfie
-                    ? `../../assets/images/user/${userStore.user.sub}/${userStore.user.profileImg}`
+                    ? `../../../assets/images/user/${userStore.user.id}/${userStore.user.profileImg}`
                     : previewProfie
                 })`,
                 backgroundSize: "50px 50px",
@@ -477,16 +457,6 @@ export const UserInfo = React.memo(() => {
               ))}
             </Select>
           </Box>
-          <Box>
-            <TextField
-              fullWidth={true}
-              id="outlined-multiline-static"
-              label="Multiline"
-              labelId={"country"}
-              multiline
-              rows={3}
-            />
-          </Box>
         </Box>
         <Box>
           <Button color={"primary"} onClick={onClickModifySubmit}>
@@ -517,8 +487,8 @@ export const UserInfo = React.memo(() => {
                 }}
               >
                 <img
-                  src={`../../../assets/images/202212/${item?.images[0]}?w=248&fit=crop&auto=format`}
-                  srcSet={`${item?.images[0]}?w=248&fit=crop&auto=format&dpr=2 2x`}
+                  src={`../../../assets/images/user/${item.userId}/${item?.images[0]}?w=248&fit=crop&auto=format`}
+                  srcSet={`../../../assets/images/user/${item.userId}/${item?.images[0]}?w=248&fit=crop&auto=format&dpr=2 2x`}
                   alt={item.title}
                   loading="lazy"
                   sx={{ borderRadius: "12px" }}

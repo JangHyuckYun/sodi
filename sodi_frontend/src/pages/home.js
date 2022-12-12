@@ -27,7 +27,7 @@ export const Home = () => {
 
   useEffect(() => {
     (async () => {
-      console.log(await sodiApi.user.findAll());
+      // console.log(await sodiApi.user.findAll());
     })();
   }, []);
 

@@ -1,5 +1,4 @@
-import { observable } from "mobx";
-import { useCallback } from "react";
+import {observable} from "mobx";
 
 const addModalStore = observable({
   open: false,
@@ -12,7 +11,7 @@ const addModalStore = observable({
     type: "",
   },
   addPostModalData: {
-    coordinates: [],
+    coordinates: [0,0],
     bbox: [],
     id: "",
     place_name: "",

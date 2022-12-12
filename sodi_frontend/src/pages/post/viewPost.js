@@ -62,7 +62,6 @@ export const ViewPost = React.memo(() => {
           if (replyName.length === "0")
             return alert("답글할 상대의 이름을 입력해 주세요.");
         }
-        console.log("replyId", replyId);
 
         let axiosResponse = await sodiApi.comment.createComment({
           boardId: id,
@@ -80,8 +79,6 @@ export const ViewPost = React.memo(() => {
     },
     [id, replyId]
   );
-    console.log('im human')
-  console.log("comments", comments);
 
   return useObserver(() => {
     return (

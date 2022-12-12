@@ -27,8 +27,8 @@ import { HttpModule, HttpService } from '@nestjs/axios';
       useFactory: (config: ConfigService) => ({
         type: 'mariadb',
         timezone: config.get('TZ'),
-        host: config.get('DB_HOST_LOCAL'),
-        // host: config.get('DB_HOST_GLOBAL'),
+        //host: config.get('DB_HOST_LOCAL'),
+        host: config.get('DB_HOST_GLOBAL'),
         port: config.get('DB_HOST_PORT'),
         username: config.get('DB_USERNAME'),
         password: config.get('DB_PASSWORD'),

@@ -1,18 +1,18 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { sodiApi } from "../utils/api";
+import React, {useCallback, useEffect, useState} from "react";
+import {sodiApi} from "../utils/api";
 import {
-  Box,
-  Button,
-  ButtonGroup,
-  ImageList,
-  ImageListItem,
-  ImageListItemBar,
-  Modal,
-  TextField,
-  Typography,
+    Box,
+    Button,
+    ButtonGroup,
+    ImageList,
+    ImageListItem,
+    ImageListItemBar,
+    Modal,
+    TextField,
+    Typography,
 } from "@mui/material";
 import ImageUploading from "react-images-uploading";
-import { modalDefaultstyle } from "./modalDefault";
+import {modalDefaultstyle} from "./modalDefault";
 import addModalStore from "../store/add.modal.store";
 import {useObserver} from "mobx-react";
 import indexStore from "../store/indexStore";
@@ -24,7 +24,7 @@ const CustomBox = styled(Box)`
   }
 
   #modal-modal-description {
-    background: red;
+    
   }
 `;
 
@@ -39,32 +39,37 @@ export const AddPostModal = React.memo(
     const maxNumber = 5;
     const onChange = (imageList, addUpdateIndex) => {
       // data for submit
-      console.log(imageList, addUpdateIndex);
       setImages(imageList);
     };
 
     useEffect(() => {
       setCountry(place_name);
     }, [place_name]);
-    console.log("country", country);
 
     const uploadPost = useCallback(async () => {
-      console.log(title, content, country, images);
       if ([title, country].some((str) => (str?.trim() || "").length === 0))
         return alert("제목 또는 도시의 값을 입력해주세요.");
+
+      if (images.length === 0) return alert('한 개 이상의 이미지를 등록해 주세요.');
+
       await sodiApi.board.uploadPost(
         {
           title,
           content,
           country,
-          longitude: coordinates[0],
-          latitude: coordinates[1],
+          longitude: coordinates[0] ?? 0,
+          latitude: coordinates[1] ?? 0,
             originalCountryInfo: JSON.stringify(searchStore.originalCountryInfo)
         },
         images
       );
 
       alert("글 등록이 완료되었습니다.");
+        setTitle('')
+        setContent('')
+        setCountry('')
+        setImages([])
+
       addModalStore.handleClose();
     }, [title, content, country, images]);
 
@@ -73,7 +78,13 @@ export const AddPostModal = React.memo(
             <CustomBox>
                 <Modal
                     open={addModalStore.open}
-                    onClose={() => addModalStore.open = false}
+                    onClose={() => {
+                        addModalStore.open = false;
+                        setTitle("")
+                        setContent("")
+                        setCountry("")
+                        setImages([])
+                    }}
                     aria-labelledby="modal-modal-title"
                     aria-describedby="modal-modal-description"
                     data-id={id}
@@ -97,7 +108,7 @@ export const AddPostModal = React.memo(
                             Add Post Modal
                         </Typography>
                         <Box id="modal-modal-description" className={"countryBox"}>
-                            <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Box>
                                 <TextField
                                     sx={{ flex: 0.85 }}
                                     fullWidth
@@ -111,7 +122,7 @@ export const AddPostModal = React.memo(
                         </Box>
 
                         <Box id="modal-modal-description" className={"contentBox"}>
-                            <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Box>
                                 <TextField
                                     sx={{ flex: 0.85 }}
                                     fullWidth
@@ -128,7 +139,7 @@ export const AddPostModal = React.memo(
                         </Box>
 
                         <Box id="modal-modal-description" className={"countryBox"}>
-                            <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Box>
                                 <TextField
                                     sx={{ flex: 0.85 }}
                                     fullWidth

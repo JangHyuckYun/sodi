@@ -1,7 +1,5 @@
 import axios from "axios";
 import toast from "react-hot-toast";
-import { SearchSession } from "@mapbox/search-js-core";
-import { MapboxSearchBox } from "@mapbox/search-js-web";
 // import https from "https";
 
 export const publicKey = process.env.REACT_APP_PUBLIC_KEY;
@@ -188,7 +186,7 @@ export const sodiApi = {
     modifyUser: async (datas, id, { profileImg, backgroundImg }) => {
       console.log('asfsafsa')
       datas.age = Number(datas.age);
-      let result = { ...datas, id};
+      // let result = { ...datas, id};
 
 
       let formData = new FormData();
@@ -230,7 +228,7 @@ export const sodiApi = {
   map: {
     searchResultList: async (keyword, props = {}) => {
       console.log(keyword, props);
-      let session_token = "bd811760-5134-468d-928c-09e4f4a02828";
+      // let session_token = "bd811760-5134-468d-928c-09e4f4a02828";
 
       // let url = `https://api.mapbox.com/search/v1/forward/${keyword}?access_token=${publicKey2}&language=en&limit=10`;
       let url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${keyword}.json?language=ko-KR&access_token=${publicKey}`;
@@ -262,7 +260,6 @@ export const sodiApi = {
     },
 
     uploadPost: async (post, images) => {
-      let { longitude, latitude } = post;
       images = images?.map((d) => d?.file) ?? [];
       let formData = new FormData();
       for (let key in post) {
@@ -282,9 +279,15 @@ export const sodiApi = {
           console.log("err", err);
         });
     },
+    updateBoard: async (board) => {
+      return await accessClient.post(`/board/post/update`, board);
+    },
     updateHits: async (id) => {
       await accessClient.post(`/board/hits/${id}`);
-    }
+    },
+    delete: async (boardId) => {
+      return await accessClient.post(`/board/post/delete/${boardId}`);
+    },
   },
   comment: {
     findAllByBoardId: async (boardId) => {

@@ -1,3 +1,6 @@
+import {Navigate} from "react-router-dom";
+import React from "react";
+
 export const debounce = (callback, duration) => {
     let timer;
     return (...args) => {
@@ -5,6 +8,14 @@ export const debounce = (callback, duration) => {
         timer = setTimeout(() => callback(...args), duration)
     };
 };
+
+export const isLogin = () => {
+    return !!localStorage.getItem("accessToken");
+}
+
+export const verify = (element) => {
+    return isLogin() ? element : <Navigate to={"/auth/login"} />;
+}
 
 const timeText = {
     kr: {

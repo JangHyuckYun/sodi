@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { useObserver } from "mobx-react";
+import React, {useEffect} from "react";
+import {useObserver} from "mobx-react";
 import indexStore from "../../store/indexStore";
 import styled from "styled-components";
 import {Box, Container, ImageList, ImageListItem, ImageListItemBar, Typography} from "@mui/material";
@@ -61,7 +61,9 @@ export const BoardAll = React.memo(() => {
                       <ImageList variant="masonry" cols={3} gap={10}>
                           {boardStore.boardList.refine[countryName].map((item) => {
                               let { id, title, content, hits, images, userId } = item;
-                            console.log('images[0]', images[0])
+                            if (/^\[[a-zA-Z0-9ㄱ-ㅎ가-힣_\"\,\.]+\]$/g.test(images)) {
+                              images = (JSON.parse(images))[0];
+                            }
                               return (
                                   <ImageListItem
                                       key={id}
@@ -76,8 +78,8 @@ export const BoardAll = React.memo(() => {
                                       }}
                                   >
                                       <img
-                                          src={`../../../assets/images/user/${userId}/${images[0]}?w=248&fit=crop&auto=format`}
-                                          srcSet={`${images[0]}?w=248&fit=crop&auto=format&dpr=2 2x`}
+                                          src={`../../../assets/images/user/${userId}/${images}?w=248&fit=crop&auto=format`}
+                                          srcSet={`../../../assets/images/user/${userId}/${images}?w=248&fit=crop&auto=format&dpr=2 2x`}
                                           alt={title}
                                           loading="lazy"
                                           sx={{ borderRadius: "12px" }}
