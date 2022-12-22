@@ -7,7 +7,6 @@ const messages = errorMessages.kr.createUser;
 
 export class CreateUserDto {
   @ApiProperty({ type: Number, description: '유저 이름 id', default: 1 })
-  @IsNotEmpty({ message: 'name|' + messages.empty.name })
   id?: number;
 
   @ApiProperty({ type: String, description: '유저 이름', default: 'jangHyuck' })

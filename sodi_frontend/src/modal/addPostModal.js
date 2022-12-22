@@ -161,15 +161,7 @@ export const AddPostModal = React.memo(
                                 maxNumber={maxNumber}
                                 dataURLKey="data_url"
                             >
-                                {({
-                                      imageList,
-                                      onImageUpload,
-                                      onImageRemoveAll,
-                                      onImageUpdate,
-                                      onImageRemove,
-                                      isDragging,
-                                      dragProps,
-                                  }) => (
+                                {({imageList, onImageUpload, onImageRemoveAll, onImageUpdate, onImageRemove, isDragging, dragProps}) => (
                                     // write your building UI
                                     <Box
                                         className="upload__image-wrapper"

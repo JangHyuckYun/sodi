@@ -141,7 +141,7 @@ export const sodiApi = {
     },
     find: async () => {
       return await accessClient.post(`/user/find`).then((res) => {
-        console.log("userData: ", res.data);
+        console.log("userData: ", res);
         return res.data;
       });
     },

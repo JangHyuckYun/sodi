@@ -89,13 +89,11 @@ export const UserInfo = React.memo(() => {
   const [previewBackground, setPreviewBackground] = useState("");
 
   const encodeFileToBase64 = (fileBlob, type) => {
-
     if (type === "profile") {
       setProfileImg(fileBlob);
     } else if (type === "background") {
       setBackgroundImg(fileBlob);
     }
-
     const reader = new FileReader();
     reader.readAsDataURL(fileBlob);
     return new Promise((resolve) => {
@@ -113,6 +111,8 @@ export const UserInfo = React.memo(() => {
   useEffect(() => {
     (async () => {
       await userStore.setUser();
+
+      console.log(userStore.user);
       setIntpus({
         email: userStore.user.email ?? "",
         password: "",
@@ -190,7 +190,6 @@ export const UserInfo = React.memo(() => {
     }
     const isNull = Object.keys(inputs).some((key) => {
       const value = inputs[key];
-
       if (typeof value === "number") {
         if (
           (key === "age" && value <= 0) ||
@@ -210,20 +209,16 @@ export const UserInfo = React.memo(() => {
         alert(messages.join.isNull.select(key));
         return true;
       }
-
       if (key === "password" && value !== inputs.passwordCheck) {
         alert(messages.join.isNull.password);
         return true;
       }
-
       if (key === "country" && value === "select") {
         alert(messages.join.isNull.country);
         return true;
       }
-
       return false;
     });
-
     if (isNull) return false;
 
     let { statusText, errors } = await sodiApi.user.modifyUser(
@@ -250,7 +245,6 @@ export const UserInfo = React.memo(() => {
       <CustomContainer>
         <Box
           className={"setImageBox"}
-          // sx={{ backgroundColor: `${(previewBackground || userStore.user.backgroundImg) ? "none;" : "rgba(0,0,0, .2);"}` }}
         >
           {previewBackground || userStore.user.backgroundImg ? (
             <img

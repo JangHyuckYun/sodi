@@ -41,10 +41,8 @@ const CoverBox = styled(Box)`
 `;
 
 const highlightedText = (text, query) => {
-  // console.log(text, query)
   if (query !== "" && text.toLowerCase().includes(query.toLowerCase())) {
     const parts = text.split(new RegExp(`(${query})`, "gi"));
-    // console.log("parts", parts);
     return (
       <>
         {parts.map((part, index) =>
@@ -54,25 +52,20 @@ const highlightedText = (text, query) => {
             </mark>
           ) : (
             part
-          )
-        )}
+          ) )}
       </>
     );
   }
-
   return text;
 };
 
 export const MainMapSearch = React.memo(() => {
   let { searchStore, addModalStore } = indexStore();
-  // const { updateTest } = searchStore;
   const { goTothePlace } = useOutletContext();
-
   const [searchKeyword, setSearchKeyword] = useState("");
 
   useEffect(() => {
     const debounce = setTimeout(() => {
-      // return setQueryKeyword(searchKeyword);
       return searchStore.updateSearchList(searchKeyword);
     }, 300);
     return () => clearTimeout(debounce);
@@ -82,44 +75,22 @@ export const MainMapSearch = React.memo(() => {
     if (!searchStore.acSearchKeywordOnlyTxt) {
       const debounce = setTimeout(() => {
         (async () => {
-          let data = await sodiApi.map.getAutoCompleteList(
-            searchStore.acSearchKeyword
-          );
+          let data = await sodiApi.map.getAutoCompleteList(searchStore.acSearchKeyword);
           if (data.features) {
-            searchStore.acSearchResults =
-              data.features.map(
+            searchStore.acSearchResults = data.features.map(
                 ({ text, place_name, bbox, properties: { short_code } }) => ({
-                  text,
-                  place_name,
-                  bbox,
-                  short_code,
-                  isAdd: false,
-                })
-              ) ?? [];
+                  text, place_name, bbox, short_code, isAdd: false,})) ?? [];
           } else {
             searchStore.acSearchResults = [];
           }
-          if (
-            searchStore.isClick ||
-            /^([0-9]+)([\.])([0-9]+)([\,])([0-9]+)([\.])([0-9]+)$/g.test(
-              searchStore.acSearchKeyword
-            )
-          ) {
+          if (searchStore.isClick || /^([0-9]+)([\.])([0-9]+)([\,])([0-9]+)([\.])([0-9]+)$/g.test(searchStore.acSearchKeyword)) {
             if (searchStore.acSearchResults.at(-1)) {
-              const { place_name, bbox, short_code } =searchStore.acSearchResults.at(-1);
+              const { place_name, bbox, short_code } = searchStore.acSearchResults.at(-1);
               searchStore.originalCountryInfo = {
-                place_name,
-                bbox,
-                country_code: short_code,
-                en_name: countries[short_code.toUpperCase()].name
+                place_name, bbox, country_code: short_code, en_name: countries[short_code.toUpperCase()].name
               };
             } else {
-              searchStore.originalCountryInfo = {
-                place_name: '',
-                bbox: [],
-                country_code: '',
-                en_name: '',
-              }
+              searchStore.originalCountryInfo = { place_name: '',  bbox: [],  country_code: '',  en_name: '', }
             }
 
             searchStore.acSearchResults.unshift({
@@ -157,16 +128,13 @@ export const MainMapSearch = React.memo(() => {
       let resultCnt;
       if (key === "ArrowUp") {
         e.preventDefault();
-        resultCnt =
-          searchAutoFillCnt - 1 < 0 ? checkLen - 1 : searchAutoFillCnt - 1;
+        resultCnt = searchAutoFillCnt - 1 < 0 ? checkLen - 1 : searchAutoFillCnt - 1;
         setSearchAutoFillCnt(resultCnt);
       } else if (key === "ArrowDown") {
         e.preventDefault();
-        resultCnt =
-          searchAutoFillCnt + 1 > checkLen - 1 ? 0 : searchAutoFillCnt + 1;
+        resultCnt = searchAutoFillCnt + 1 > checkLen - 1 ? 0 : searchAutoFillCnt + 1;
         setSearchAutoFillCnt(resultCnt);
       }
-
       if (key === "Enter") {
         let tg = searchStore.acSearchResults[searchAutoFillCnt];
 
@@ -226,21 +194,15 @@ export const MainMapSearch = React.memo(() => {
                     ({ text, place_name }, idx) => (
                       <ListItem
                         style={{ cursor: "pointer" }}
-                        className={`autoFillListItem ${
-                          searchAutoFillCnt === idx ? "selected" : ""
-                        }`}
+                        className={`autoFillListItem ${ searchAutoFillCnt === idx ? "selected" : "" }`}
                         onMouseEnter={() => setSearchAutoFillCnt(idx)}
                         onMouseLeave={() => setSearchAutoFillCnt(-1)}
                         onClick={() => {
-                          let tg =
-                            searchStore.acSearchResults[searchAutoFillCnt];
+                          let tg = searchStore.acSearchResults[searchAutoFillCnt];
 
                           if (searchAutoFillCnt === 0 && tg.isAdd) {
                             addModalStore.addPostModalData = {
-                              coordinates: searchStore.acSearchKeyword
-                                .trim()
-                                .split(",")
-                                .map((str) => Number(str)),
+                              coordinates: searchStore.acSearchKeyword.trim().split(",").map((str) => Number(str)),
                               bbox: [],
                               id: -1,
                               place_name: "",
@@ -257,23 +219,7 @@ export const MainMapSearch = React.memo(() => {
                         }}
                         alignItems="flex-start"
                         key={`autoFillListItem_${idx}`}
-                      >
-                        <ListItemText
-                          primary={text}
-                          secondary={
-                            <React.Fragment>
-                              {/*<Typography*/}
-                              {/*    sx={{ display: 'inline' }}*/}
-                              {/*    component="span"*/}
-                              {/*    variant="body2"*/}
-                              {/*    color="text.primary"*/}
-                              {/*>*/}
-                              {/*    {txt}*/}
-                              {/*</Typography>*/}
-                              {place_name}
-                            </React.Fragment>
-                          }
-                        />
+                      ><ListItemText primary={text} secondary={ <React.Fragment> {place_name} </React.Fragment>}/>
                       </ListItem>
                     )
                   )
@@ -306,10 +252,7 @@ export const MainMapSearch = React.memo(() => {
                       <Typography
                         sx={{ fontSize: 14 }}
                         color="text.secondary"
-                        gutterBottom
-                      >
-                        place
-                      </Typography>
+                        gutterBottom >place</Typography>
                       <Typography variant="h5" component="div">
                         {highlightedText(text, searchKeyword)}
                       </Typography>
@@ -335,20 +278,7 @@ export const MainMapSearch = React.memo(() => {
                         color={"primary"}
                         size="small"
                         data-id={id}
-                        onClick={(e) => {
-                          addModalStore.handleOpen({
-                            coordinates,
-                            bbox,
-                            id,
-                            place_name,
-                          });
-                          // viewAddPostModal({
-                          //   coordinates,
-                          //   bbox,
-                          //   id,
-                          //   place_name,
-                          // });
-                        }}
+                        onClick={(e) => { addModalStore.handleOpen({ coordinates,  bbox,  id,  place_name,}); }}
                       >
                         Add Post
                       </Button>

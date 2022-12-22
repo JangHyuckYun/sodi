@@ -11,7 +11,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { AuthExceptionFilter } from '../exception/auth.exception.filter';
 
-@UseGuards(LocalAuthGuard)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -28,7 +27,6 @@ export class AuthController {
     return this.authService.login(req.user);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('/verify')
   async verify(@Request() req) {
     console.log('connect...', req.accessToken);

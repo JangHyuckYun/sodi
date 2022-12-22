@@ -179,13 +179,17 @@ export const JoinContainer = () => {
 
     if (isNull) return false;
 
-    let { statusText, errors } = await sodiApi.user.createUser(inputs);
+    let result = await sodiApi.user.createUser(inputs);
+      
+      let { statusText } = result;
+
+      console.log(statusText, result.errors);
 
     if (statusText === "Created") {
       alert(messages.join.success.create);
       return navigate("/auth/login");
     } else {
-      errors.some(err => {
+      result.errors.some(err => {
         let [type, msg] = err.split("|");
         setErrors({
           ...errors,

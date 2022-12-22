@@ -25,31 +25,10 @@ export class BoardController {
   @UseGuards(JwtAuthGuard)
   @Post('list/all')
   async allBoardList(@Req() req): Promise<Array<any>> {
-    const result = await this.boardService.findAll();
-    //   .map((board) => {
-    //   const boardResult = Object.keys(board).reduce(
-    //     (acc, key) => {
-    //       if (key.includes('image')) {
-    //         if (board[key]?.length > 0) {
-    //           board[key] =
-    //             typeof board[key] === 'object'
-    //               ? JSON.parse(board[key])
-    //               : board[key];
-    //           acc.images.push(board[key]);
-    //         }
-    //       } else {
-    //         acc[key] = board[key];
-    //       }
-    //       return acc;
-    //     },
-    //     { images: [] },
-    //   );
-    //   return boardResult;
-    // });
-
-    return result;
+    return await this.boardService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('list/:boardIdx')
   async boardListById(@Param('boardIdx') boardIdx: number): Promise<Board> {
     return this.boardService.findOne(boardIdx);
@@ -71,16 +50,7 @@ export class BoardController {
     @Body() createBoardDto: CreateBoardDto,
     @Req() req,
   ) {
-    console.log();
-    console.log('req?.user?.id', req?.user?.sub);
     createBoardDto.userId = Number(req?.user?.sub ?? -1);
-
-    const result = files.map((file) => {
-      return {
-        filesName: file.originalname,
-        size: file.size,
-      };
-    });
     this.boardService.createBoard(createBoardDto, files);
   }
 

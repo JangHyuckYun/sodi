@@ -146,23 +146,13 @@ const CustomSwiper = styled(Swiper)`
   //}
 `;
 
-export const ViewPostModal = React.memo(({ handleClose }) => {
+export const ViewPostModal = React.memo(() => {
   const navigate = useNavigate();
   let { boardStore, userStore } = indexStore();
-  const { title, id, place_name, content, country, images } = boardStore.board;
+  const { title, id, content, images } = boardStore.board;
   const [comments, setComments] = useState([]);
   const [commentTexts, setCommentTexts] = useState("");
   const [replyId, setReplyId] = useState(0);
-
-  // const comment_query = useQuery(
-  //     ["commentList"],
-  //     () => sodiApi.comment.findAllByBoardId(id),0
-  //     {
-  //         onError: (err) => (error) => toast.error("asfsfafas"),
-  //     }
-  // );
-  // console.log('comment_query', comment_query)
-
   const loadCommentList = useCallback(async () => {
     const commentList = await sodiApi.comment.findAllByBoardId(Number(id));
     setComments(commentList.data);
@@ -317,20 +307,10 @@ export const ViewPostModal = React.memo(({ handleClose }) => {
                           zeroMinWidth
                           className={"commentText"}
                         >
-                          <h4 style={{ margin: 0, textAlign: "left" }}>
-                            {writer}
-                          </h4>
+                          <h4 style={{ margin: 0, textAlign: "left" }}>{writer}</h4>
                           <p style={{ textAlign: "left" }}>{content}</p>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              paddingRight: 5,
-                            }}
-                          >
-                            <p style={{ textAlign: "left", color: "gray" }}>
-                              posted {detailDate(new Date(createDate))}
-                            </p>
+                          <Box sx={{display: "flex", justifyContent: "space-between", paddingRight: 5, }}>
+                            <p style={{ textAlign: "left", color: "gray" }}>posted { detailDate(new Date(createDate)) }</p>
                             <p
                               style={{
                                 textAlign: "left",

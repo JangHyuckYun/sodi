@@ -34,11 +34,9 @@ export class UserService {
 
   async createUser(createUserDto: CreateUserDto) {
     createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
-    console.log('createUserDto', createUserDto);
     const user = this.userRepository.create({
       ...createUserDto,
     });
-    console.log('user', user);
     return this.userRepository.save(user);
   }
 
@@ -79,17 +77,11 @@ export class UserService {
     const user: User = await this.userRepository.findOneBy({
       id: modifyUser.id,
     });
-
-    console.log('beforeUser: ', user);
-
     if (modifyUser.password.length > 0) {
       user.password = await bcrypt.hash(modifyUser.password, 10);
     }
-
-    Object.keys(modifyUser).forEach((key) => {
-      (async () => {
+    Object.keys(modifyUser).forEach((key) => { (async () => {
         const value = modifyUser[key];
-
         if (
           value !== user[key] &&
           !['backgroundImg', 'profileImg', 'password'].includes(key)
@@ -98,7 +90,6 @@ export class UserService {
         }
       })();
     });
-
     if (files) {
       if (files.length === 1) {
         user[modifyUser.backgroundImg ? 'backgroundImg' : 'profileImg'] =
@@ -108,24 +99,6 @@ export class UserService {
         user.backgroundImg = files[1].filename;
       }
     }
-
-    // files.forEach((file, idx) => {
-    //   if (idx === 0) user.profileImg = file.filename;
-    //   else user.backgroundImg = file.filename;
-    // });
-    //
-    // if (modifyUser?.files && files.length > 0) {
-    //   user[modifyUser.files === 'profileImg' ? 'backgroundImg' : 'profileImg'] =
-    //     files[0].filename;
-    // } else if (!modifyUser?.files && files.length > 1) {
-    //   files.forEach((file, idx) => {
-    //     if (idx === 0) user.profileImg = file.filename;
-    //     else user.backgroundImg = file.filename;
-    //   });
-    // }
-
-    console.log('afterUser: ', user);
-
     return await this.userRepository.save(user);
   }
 }

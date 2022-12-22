@@ -25,9 +25,10 @@ export class UserController {
     private readonly boardService: BoardService,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
   @Post('find')
+  @UseGuards(JwtAuthGuard)
   async getUser(@Req() req) {
+    console.log('user -> req', req);
     const { user } = req;
     const result = this.userService.find(user);
     console.log('result', result);
@@ -50,7 +51,6 @@ export class UserController {
     return this.userService.findAll();
   }
   // user.controller.ts
-  @UseGuards(JwtAuthGuard)
   @Post('/duplicate')
   async duplicate(@Body() userDuplicateReqDto: UserDuplicateRequestDto) {
     return this.userService.duplicate(userDuplicateReqDto);

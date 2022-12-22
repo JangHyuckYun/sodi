@@ -134,6 +134,7 @@ export const LoginContainer = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
             <FormControlLabel
+                          sx={{visibility:'hidden'}}
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
             />

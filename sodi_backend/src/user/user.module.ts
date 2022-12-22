@@ -26,10 +26,6 @@ import { extname } from 'path';
       useFactory: async (config: ConfigService, jwtService: JwtService) => ({
         storage: diskStorage({
           destination: function (req: any, file, cb) {
-            console.log('destination', file, cb);
-            // 파일저장위치 + 년월 에다 업로드 파일을 저장한다.
-            // 요 부분을 원하는 데로 바꾸면 된다.
-
             function validateToken(token: string) {
               const secretKey = process.env.JWT_SECRET
                 ? process.env.JWT_SECRET
@@ -59,35 +55,21 @@ import { extname } from 'path';
                 }
               }
             }
-
             const { authorization } = req.headers;
-
             if (authorization === undefined) {
               throw new HttpException(
                 'Token 전송 안됨',
                 HttpStatus.UNAUTHORIZED,
               );
             }
-
-            console.log('req.headers', req.headers);
-            console.log('authorization', authorization);
-
             const token = authorization.replace('Bearer ', '');
-
             req.user = validateToken(token);
-
-            console.log('req.user', req.user);
-
-            const dest = `${config.get('ATTACH_SAVE_PATH_MAC')}/user/${
+            const dest = `${config.get('ATTACH_SAVE_PATH_WINDOW')}/user/${
               req.user.sub + '' ?? ''
             }/`;
-
-            console.log('dest', dest);
-
             if (!fs.existsSync(dest)) {
               fs.mkdirSync(dest, { recursive: true });
             }
-
             cb(null, dest);
           },
           filename: (req, file, cb) => {

@@ -43,13 +43,11 @@ const CustomContainer = styled(Container)`
 
 export const BoardAll = React.memo(() => {
   const { boardStore } = indexStore();
-
   useEffect(() => {
     (async () => {
       await boardStore.setBoardList();
     })();
   }, []);
-
   return useObserver(() => {
     return (
       <CustomContainer>
@@ -61,9 +59,7 @@ export const BoardAll = React.memo(() => {
                       <ImageList variant="masonry" cols={3} gap={10}>
                           {boardStore.boardList.refine[countryName].map((item) => {
                               let { id, title, content, hits, images, userId } = item;
-                            if (/^\[[a-zA-Z0-9ㄱ-ㅎ가-힣_\"\,\.]+\]$/g.test(images)) {
-                              images = (JSON.parse(images))[0];
-                            }
+                            if (/^\[[a-zA-Z0-9ㄱ-ㅎ가-힣_\"\,\.]+\]$/g.test(images)) { images = (JSON.parse(images))[0]; }
                               return (
                                   <ImageListItem
                                       key={id}
@@ -72,17 +68,12 @@ export const BoardAll = React.memo(() => {
                                           overflow: "hidden",
                                           cursor: "pointer",
                                       }}
-                                      onClick={async () => {
-                                          boardStore.open = true;
-                                          await boardStore.setBoard(item);
-                                      }}
-                                  >
+                                      onClick={async () => { boardStore.open = true; await boardStore.setBoard(item);
+                                      }}>
                                       <img
                                           src={`../../../assets/images/user/${userId}/${images}?w=248&fit=crop&auto=format`}
                                           srcSet={`../../../assets/images/user/${userId}/${images}?w=248&fit=crop&auto=format&dpr=2 2x`}
-                                          alt={title}
-                                          loading="lazy"
-                                          sx={{ borderRadius: "12px" }}
+                                          alt={title} loading="lazy" sx={{ borderRadius: "12px" }}
                                       />
                                       <ImageListItemBar title={title} subtitle={content} />
                                   </ImageListItem>
